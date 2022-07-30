@@ -158,6 +158,7 @@ class DetailPlayActivity : BaseActivity() {
             }
             it
         }
+        // 播放
         playParser = SourceParserFactory.play(bangumi.source).let {
             if(it == null){
                 finish()
@@ -166,6 +167,7 @@ class DetailPlayActivity : BaseActivity() {
                 it
             }
         }
+        // 获取细节
         detailParser = SourceParserFactory.detail(bangumi.source).let {
             if(it == null){
                 finish()
@@ -288,6 +290,7 @@ class DetailPlayActivity : BaseActivity() {
             preparePlay()
             false
         }
+        // 追番
         binding.btFollow.setOnClickListener {
             val detail = viewModel.bangumiDetail.value.let {
                 if(it == null){
@@ -370,6 +373,7 @@ class DetailPlayActivity : BaseActivity() {
         loadingUi()
         loadDetail()
     }
+    // 加载细节信息
     private fun performLoadDetail(){
         loadingUi()
         viewModel.viewModelScope.launch {
@@ -408,6 +412,7 @@ class DetailPlayActivity : BaseActivity() {
         }
 
     }
+    // 加载播放信息
     private fun performLoadPlayMsg(){
         loadingUi()
         viewModel.viewModelScope.launch {
@@ -478,7 +483,7 @@ class DetailPlayActivity : BaseActivity() {
         }catch (e : Exception){
             e.printStackTrace()
         }
-
+        // 获取播放视频地址准备播放
         viewModel.viewModelScope.launch {
             playParser.getPlayUrl(bangumi, playLineIndex, playEpisode)
                 .complete {

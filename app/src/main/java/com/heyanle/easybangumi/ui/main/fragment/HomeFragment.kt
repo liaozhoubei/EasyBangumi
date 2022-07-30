@@ -132,7 +132,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                         viewModel.bangumiMap.value = map
                     }
                 }else{
-                    when(val result = SourceParserFactory.home(keyList[it])?.home()){
+                    val result = SourceParserFactory.home(keyList[it])?.home()
+                    when(result){
                         is ISourceParser.ParserResult.Error -> {
                             if(result.isParserError){
                                 kotlin.runCatching {
@@ -145,6 +146,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                         is ISourceParser.ParserResult.Complete -> {
                             load(result.data)
                         }
+                        else -> {}
                     }
                 }
 

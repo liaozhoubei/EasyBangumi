@@ -23,6 +23,9 @@ interface BangumiDetailDao {
     @Query("select * from bangumi_detail where star = 1 order by lastVisiTime desc")
     fun findStarBangumiDetail():PagingSource<Int, BangumiDetail>
 
+    @Query("select * from bangumi_detail where star = 1 order by lastVisiTime desc")
+    fun findStarBangumiDetails():List<BangumiDetail>
+
     @Delete
     fun delete(vararg bangumiDetail: BangumiDetail)
 

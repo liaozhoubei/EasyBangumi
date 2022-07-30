@@ -2,6 +2,7 @@ package com.heyanle.easybangumi.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 /**
  * Created by HeYanLe on 2021/9/8 22:09.
@@ -30,4 +31,4 @@ data class Bangumi (
 
     // 最后访问时间 （历史记录）
     var visitTime: Long = 0L,
-)
+) : Serializable

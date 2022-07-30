@@ -21,10 +21,16 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
+
+
     buildTypes {
+        debug{
+            isMinifyEnabled = false
+        }
         release {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),  "proguard-rules.pro")
+            isMinifyEnabled = false
+//            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),  "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -42,6 +48,12 @@ android {
 dependencies {
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation("androidx.leanback:leanback:1.0.0")
+//    implementation( "com.google.android.exoplayer:exoplayer:2.6.1")
+    implementation( "com.google.android.exoplayer:extension-leanback:2.17.1")
+    implementation ("com.google.android.exoplayer:exoplayer-core:2.17.1")
+    implementation ("com.google.android.exoplayer:exoplayer-dash:2.17.1")
+    implementation ("com.google.android.exoplayer:exoplayer-ui:2.17.1")
     Dependencies.project.forEach { implementation(project(it)) }
     Dependencies.implementation.forEach { implementation(it) }
     Dependencies.ksp.forEach { ksp(it) }
