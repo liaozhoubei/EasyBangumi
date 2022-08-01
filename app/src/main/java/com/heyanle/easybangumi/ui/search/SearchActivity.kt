@@ -45,7 +45,6 @@ class SearchActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-
         searchKeyList.clear()
         searchKeyList.addAll(SourceParserFactory.searchKeys())
         binding.viewPager.adapter = pageAdapter

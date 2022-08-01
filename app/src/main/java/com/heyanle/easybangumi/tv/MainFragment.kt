@@ -1,39 +1,21 @@
 package com.heyanle.easybangumi.tv
 
-import java.util.Collections
-import java.util.Timer
-import java.util.TimerTask
-
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.leanback.app.BackgroundManager
-import androidx.leanback.app.BrowseSupportFragment
-import androidx.leanback.widget.ArrayObjectAdapter
-import androidx.leanback.widget.HeaderItem
-import androidx.leanback.widget.ImageCardView
-import androidx.leanback.widget.ListRow
-import androidx.leanback.widget.ListRowPresenter
-import androidx.leanback.widget.OnItemViewClickedListener
-import androidx.leanback.widget.OnItemViewSelectedListener
-import androidx.leanback.widget.Presenter
-import androidx.leanback.widget.Row
-import androidx.leanback.widget.RowPresenter
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.content.ContextCompat
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.leanback.app.BackgroundManager
+import androidx.leanback.app.BrowseSupportFragment
+import androidx.leanback.widget.*
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -43,9 +25,9 @@ import com.heyanle.easybangumi.entity.Bangumi
 import com.heyanle.easybangumi.source.ISourceParser
 import com.heyanle.easybangumi.source.SourceParserFactory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 /**
  * Loads a grid of cards with movies to browse.
@@ -67,8 +49,6 @@ class MainFragment : BrowseSupportFragment() {
         prepareBackgroundManager()
 
         setupUIElements()
-
-        loadRows()
 
         setupEventListeners()
     }
@@ -105,9 +85,7 @@ class MainFragment : BrowseSupportFragment() {
 
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch(Dispatchers.IO){
-
-        }
+        loadRows()
     }
 
     private fun loadRows() {
@@ -136,7 +114,7 @@ class MainFragment : BrowseSupportFragment() {
                 index++
                 for (key in keys) {
                     val bangumis: List<Bangumi>? = data.get(key)
-                    Log.e("MainActivity", "onCreate: key=${key}",)
+                    Log.e("MainActivity", "onCreate: key=${key}")
                     // 右侧影片信息
                     val listRowAdapter = ArrayObjectAdapter(cardPresenter)
                     bangumis?.let {
@@ -198,8 +176,11 @@ class MainFragment : BrowseSupportFragment() {
 
     private fun setupEventListeners() {
         setOnSearchClickedListener {
-            Toast.makeText(requireActivity(), "Implement your own in-app search", Toast.LENGTH_LONG)
-                .show()
+//            Toast.makeText(requireActivity(), "Implement your own in-app search", Toast.LENGTH_LONG)
+//                .show()
+
+            val intent = Intent(activity, TvSearchActivity::class.java)
+            startActivity(intent)
         }
 
         onItemViewClickedListener = ItemViewClickedListener()

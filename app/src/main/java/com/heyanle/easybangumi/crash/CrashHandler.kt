@@ -2,6 +2,7 @@ package com.heyanle.easybangumi.crash
 
 import android.content.Context
 import android.content.Intent
+import android.os.Process
 import com.heyanle.easybangumi.utils.start
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -34,7 +35,8 @@ class CrashHandler(
         }.onFailure {
             it.printStackTrace()
         }
-
+//        val myPid = Process.myPid() //获取当前进程的id
+//        Process.killProcess(myPid)
 
 
 

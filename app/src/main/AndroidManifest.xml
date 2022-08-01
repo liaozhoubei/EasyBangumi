@@ -51,6 +51,8 @@
         <activity
             android:name=".tv.BrowseErrorActivity"
             android:exported="false" />
+        <activity android:name=".tv.TvSearchActivity"
+            android:exported="false"/>
 
 <!--        手机-->
 

@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 /**
  * Loads [MainFragment].
  */
-class MainActivity : FragmentActivity() {
+class MainActivity : LeanbackActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,28 +25,6 @@ class MainActivity : FragmentActivity() {
                 .replace(R.id.main_browse_fragment, MainFragment())
                 .commitNow()
         }
-//        lifecycleScope.launch {
-//            val keyList = SourceParserFactory.homeKeys()
-//            val result =SourceParserFactory.home(keyList[0])?.home();
-//            if(result is ISourceParser.ParserResult.Complete){
-//                 val data:LinkedHashMap<String, List<Bangumi>> = result.data;
-//                val keys = data.keys
-//                for (key in keys){
-//                    val bangumis:List<Bangumi>? = data.get(key)
-//                    Log.e("MainActivity", "onCreate: key=${key}", )
-//                    bangumis?.let {
-//                        for (bangumi in it){
-//                            Log.e("MainActivity", "onCreate: source=${bangumi.source} name=${bangumi.name}", )
-//                        }
-//                    }
-//                }
-//            }
-//            when(result){
-//                is ISourceParser.ParserResult.Complete->{}
-//                is ISourceParser.ParserResult.Error ->{}
-//                else->{}
-//            }
-//        }
 
     }
 }
