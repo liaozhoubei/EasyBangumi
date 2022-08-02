@@ -1,6 +1,7 @@
 package com.heyanle.easybangumi.source.bimibimi
 
 import android.content.Context
+import android.util.Log
 import com.heyanle.easybangumi.EasyApplication
 import com.heyanle.easybangumi.R
 import com.heyanle.easybangumi.entity.Bangumi
@@ -320,6 +321,7 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
                 return@withContext ISourceParser.ParserResult.Complete(episode)
             }.onFailure {
                 it.printStackTrace()
+                Log.e("BimiBimiParse", "getPlayUrl error: ${d.select("video#video source")}", )
                 return@withContext ISourceParser.ParserResult.Error(it, true)
             }
 

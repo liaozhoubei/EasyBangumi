@@ -22,6 +22,7 @@ object Dependencies {
         const val flexbox = "3.0.0"
         const val swipe_refresh_layout = "1.0.0"
         const val preference = "1.2.0"
+        const val leanback = "1.0.0"
     }
 
     val project = listOf<String>(
@@ -36,6 +37,10 @@ object Dependencies {
         "androidx.swiperefreshlayout:swiperefreshlayout:${Version.swipe_refresh_layout}",
         "com.google.android.flexbox:flexbox:${Version.flexbox}",
         "com.google.android.exoplayer:exoplayer:${Version.exoplayer}",
+        "com.google.android.exoplayer:extension-leanback:${Version.exoplayer}",
+        "com.google.android.exoplayer:exoplayer-core:${Version.exoplayer}",
+        "com.google.android.exoplayer:exoplayer-dash:${Version.exoplayer}",
+        "com.google.android.exoplayer:exoplayer-ui:${Version.exoplayer}",
         "androidx.paging:paging-runtime-ktx:${Version.paging}",
         "androidx.core:core-ktx:${Version.android_core}",
         "cn.jzvd:jiaozivideoplayer:${Version.jzvd}",
@@ -50,6 +55,8 @@ object Dependencies {
         "com.github.bumptech.glide:glide:${Version.glide}",
         "com.google.code.gson:gson:${Version.gson}",
         "com.github.heyanLE.okkv2:okkv2-mmkv:${Version.okkv2}",
+        "androidx.leanback:leanback:${Version.leanback}",
+        "androidx.leanback:leanback-preference:${Version.leanback}",
     )
 
     val ksp = listOf<String>(

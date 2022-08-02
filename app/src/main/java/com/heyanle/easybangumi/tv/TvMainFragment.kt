@@ -104,6 +104,7 @@ class TvMainFragment : BrowseSupportFragment() {
     private fun loadRows() {
         lifecycleScope.launch(Dispatchers.IO) {
             val key = sharedPreferences.getString(getString(R.string.pref_key_source), SourceParserFactory.homeKeys()[0])
+            Log.e(TAG, "loadRows: ${key}", )
             val result = SourceParserFactory.home(key!!)?.home();
             if (result is ISourceParser.ParserResult.Complete) {
                 var index = 0;

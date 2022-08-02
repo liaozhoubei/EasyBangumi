@@ -109,11 +109,7 @@ public class TvSearchBar extends RelativeLayout {
     private int mBackgroundAlpha;
     private int mBackgroundSpeechAlpha;
     private int mBarHeight;
-//    private SpeechRecognizer mSpeechRecognizer;
-//    private SpeechRecognitionCallback mSpeechRecognitionCallback;
     private boolean mListening;
-//    SoundPool mSoundPool;
-//    SparseIntArray mSoundMap = new SparseIntArray();
     boolean mRecognizing = false;
     private final Context mContext;
     private AudioManager mAudioManager;
@@ -280,6 +276,7 @@ public class TvSearchBar extends RelativeLayout {
     }
 
     public void setRadioGroup(List<String> keys, int defaultFocus){
+        mRadioGroup.removeAllViews();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.get(i);
             RadioButton radioButton = new RadioButton(mContext);
@@ -293,20 +290,15 @@ public class TvSearchBar extends RelativeLayout {
         mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                Log.e(TAG, "onCheckedChanged: " + checkedId );
-                RadioButton radioButton = group.findViewById(checkedId);
-                Log.e(TAG, "onCheckedChanged: " + radioButton.getText() );
+//                RadioButton radioButton = group.findViewById(checkedId);
             }
         });
-//        mRadioGroup.getCheckedRadioButtonId();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         if (DEBUG) Log.v(TAG, "Loading soundPool");
-//        mSoundPool = new SoundPool(2, AudioManager.STREAM_SYSTEM, 0);
-//        loadSounds(mContext);
     }
 
     @Override
@@ -330,7 +322,6 @@ public class TvSearchBar extends RelativeLayout {
      * @param query the search query to use
      */
     public void setSearchQuery(String query) {
-//        stopRecognition();
         mSearchTextEditor.setText(query);
         setSearchQueryInternal(query);
     }
@@ -445,15 +436,8 @@ public class TvSearchBar extends RelativeLayout {
     private void updateHint() {
         String title = getResources().getString(androidx.leanback.R.string.lb_search_bar_hint);
         if (!TextUtils.isEmpty(mTitle)) {
-//            if (isVoiceMode()) {
-//                title = getResources().getString(androidx.leanback.R.string.lb_search_bar_hint_with_title_speech, mTitle);
-//            } else {
                 title = getResources().getString(androidx.leanback.R.string.lb_search_bar_hint_with_title, mTitle);
-//            }
         }
-//        else if (isVoiceMode()) {
-//            title = getResources().getString(androidx.leanback.R.string.lb_search_bar_hint_speech);
-//        }
         mHint = title;
         if (mSearchTextEditor != null) {
             mSearchTextEditor.setHint(mHint);
@@ -481,13 +465,8 @@ public class TvSearchBar extends RelativeLayout {
     void updateUi(boolean hasFocus) {
         if (hasFocus) {
             mBarBackground.setAlpha(mBackgroundSpeechAlpha);
-//            if (isVoiceMode()) {
-//                mSearchTextEditor.setTextColor(mTextHintColorSpeechMode);
-//                mSearchTextEditor.setHintTextColor(mTextHintColorSpeechMode);
-//            } else {
                 mSearchTextEditor.setTextColor(mTextColorSpeechMode);
                 mSearchTextEditor.setHintTextColor(mTextHintColorSpeechMode);
-//            }
         } else {
             mBarBackground.setAlpha(mBackgroundAlpha);
             mSearchTextEditor.setTextColor(mTextColor);
@@ -515,7 +494,6 @@ public class TvSearchBar extends RelativeLayout {
 
     @Override
     public void setNextFocusDownId(int viewId) {
-//        mSpeechOrbView.setNextFocusDownId(viewId);
         mSearchTextEditor.setNextFocusDownId(viewId);
     }
 

@@ -203,7 +203,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                         withContext(Dispatchers.Main){
                             mPlayUrl[mPlayLineIndex][mPlayEpisode] = it.data.url
                             mPlayerGlue?.setTitle(mVideo!!.name)
-//                            mPlayerGlue?.setSubtitle("第${mPlayEpisode}集")
+                            mPlayerGlue?.setSubtitle(it.data.episode)
                             play(it.data.url)
                         }
                     }
