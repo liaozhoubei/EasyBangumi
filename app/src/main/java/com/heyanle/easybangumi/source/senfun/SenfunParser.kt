@@ -11,6 +11,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.heyanle.easybangumi.EasyApplication
 import com.heyanle.easybangumi.entity.Bangumi
 import com.heyanle.easybangumi.entity.BangumiDetail
+import com.heyanle.easybangumi.entity.Episode
 import com.heyanle.easybangumi.source.*
 import com.heyanle.easybangumi.source.agefans.AgefansParser
 import com.heyanle.easybangumi.ui.detailplay.DetailPlayWebViewActivity
@@ -260,7 +261,7 @@ class SenfunParser: ISourceParser, IHomeParser, IDetailParser, IPlayerParser, IS
         bangumi: Bangumi,
         lineIndex: Int,
         episodes: Int
-    ): ISourceParser.ParserResult<String> {
+    ): ISourceParser.ParserResult<Episode> {
         if(lineIndex < 0 || episodes < 0){
             return ISourceParser.ParserResult.Error(IndexOutOfBoundsException(), false)
         }
@@ -300,13 +301,16 @@ class SenfunParser: ISourceParser, IHomeParser, IDetailParser, IPlayerParser, IS
                 }
                 val jsonObject = JSONObject(jsonSource)
                 val jsonUrl = jsonObject.getString("url")
-                URLDecoder.decode(jsonUrl, "UTF-8");
+                val active = doc.getElementsByClass("module-play-list-link active")
+                Log.e("Parse", "getPlayUrl: "+  active)
+                val url = URLDecoder.decode(jsonUrl, "UTF-8");
+                Episode(active.text()?:"", url)
             }.getOrElse {
                 it.printStackTrace()
                 return@withContext ISourceParser.ParserResult.Error(it, true)
             }
 
-            if(result.isNotEmpty())
+            if(result.url.isNotEmpty())
                 return@withContext ISourceParser.ParserResult.Complete(result)
 
             return@withContext ISourceParser.ParserResult.Error(Exception("Unknown Error"), true)

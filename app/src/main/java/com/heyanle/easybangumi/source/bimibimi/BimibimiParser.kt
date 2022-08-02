@@ -5,6 +5,7 @@ import com.heyanle.easybangumi.EasyApplication
 import com.heyanle.easybangumi.R
 import com.heyanle.easybangumi.entity.Bangumi
 import com.heyanle.easybangumi.entity.BangumiDetail
+import com.heyanle.easybangumi.entity.Episode
 import com.heyanle.easybangumi.source.*
 import com.heyanle.easybangumi.ui.detailplay.DetailPlayActivity
 import com.heyanle.easybangumi.utils.OkHttpUtils
@@ -243,7 +244,7 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
         bangumi: Bangumi,
         lineIndex: Int,
         episodes: Int
-    ): ISourceParser.ParserResult<String> {
+    ): ISourceParser.ParserResult<Episode> {
 
         if(lineIndex < 0 || episodes < 0){
             return ISourceParser.ParserResult.Error(IndexOutOfBoundsException(), false)
@@ -283,9 +284,9 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
                 }
                 val jsonObject = JSONObject(jsonData)
                 val jsonUrl = jsonObject.getString("url")
-
-                if (jsonUrl.contains("http")) {
-                    return@withContext ISourceParser.ParserResult.Complete(jsonUrl)
+                val episode = Episode("", jsonUrl)
+                if (episode.url.contains("http")) {
+                    return@withContext ISourceParser.ParserResult.Complete(episode)
                 } else {
                     var from = jsonObject.getString("from")
                     from = when (from) {
@@ -314,7 +315,9 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
                 return@withContext ISourceParser.ParserResult.Error(it, false)
             }
             runCatching {
-                return@withContext ISourceParser.ParserResult.Complete(d.select("video#video source")[0].attr("src"))
+                val url = d.select("video#video source")[0].attr("src")
+                val episode = Episode("", url)
+                return@withContext ISourceParser.ParserResult.Complete(episode)
             }.onFailure {
                 it.printStackTrace()
                 return@withContext ISourceParser.ParserResult.Error(it, true)

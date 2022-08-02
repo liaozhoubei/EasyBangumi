@@ -12,8 +12,8 @@ import com.heyanle.easybangumi.source.yhdm.YhdmParser
 object SourceParserFactory {
 
     fun init(){
-        register(BimibimiParser())
         register(YhdmParser())
+        register(BimibimiParser())
         register(AgefansParser())
         register(SenfunParser())
     }

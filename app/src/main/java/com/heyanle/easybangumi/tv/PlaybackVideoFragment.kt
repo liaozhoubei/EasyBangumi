@@ -2,11 +2,16 @@ package com.heyanle.easybangumi.tv
 
 
 import android.annotation.TargetApi
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
 import androidx.leanback.widget.*
@@ -23,6 +28,7 @@ import com.heyanle.easybangumi.R
 import com.heyanle.easybangumi.db.EasyDatabase
 import com.heyanle.easybangumi.entity.Bangumi
 import com.heyanle.easybangumi.entity.BangumiDetail
+import com.heyanle.easybangumi.entity.RelateBangumi
 import com.heyanle.easybangumi.source.IDetailParser
 import com.heyanle.easybangumi.source.IPlayerParser
 import com.heyanle.easybangumi.source.SourceParserFactory
@@ -188,17 +194,17 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             // 选集顺序有可能是倒序，主要看网站排序
             mPlayParser.getPlayUrl(mVideo!!, mPlayLineIndex, mPlayEpisode)
                 .complete {
-                    if(it.data == ""){
+                    if(it.data.url == ""){
 //                        errorVideo()
                         withContext(Dispatchers.Main){
                             Toast.makeText(EasyApplication.INSTANCE, R.string.source_error, Toast.LENGTH_SHORT).show()
                         }
                     }else{
                         withContext(Dispatchers.Main){
-                            mPlayUrl[mPlayLineIndex][mPlayEpisode] = it.data
+                            mPlayUrl[mPlayLineIndex][mPlayEpisode] = it.data.url
                             mPlayerGlue?.setTitle(mVideo!!.name)
-                            mPlayerGlue?.setSubtitle("第${mPlayEpisode}集")
-                            play(it.data)
+//                            mPlayerGlue?.setSubtitle("第${mPlayEpisode}集")
+                            play(it.data.url)
                         }
                     }
                     Log.e("PlaybackVideoFragment", "onCreate: playUrl ${it}", )
@@ -248,13 +254,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
     }
 
     private fun initializePlayer() {
-//        val bandwidthMeter: BandwidthMeter = DefaultBandwidthMeter()
-//        val videoTrackSelectionFactory: TrackSelection.Factory =
-//            AdaptiveTrackSelection.Factory(bandwidthMeter)
-//        mTrackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
+
         mPlayer = SimpleExoPlayer.Builder(requireContext()).build()
-//        mPlayer = ExoPlayer.Builder(requireContext()).build()
-//        mPlayer = ExoPlayerFactory.newSimpleInstance(activity, mTrackSelector)
+
         mPlayerAdapter = LeanbackPlayerAdapter(requireActivity(), mPlayer!!, UPDATE_DELAY)
         mPlaylistActionListener = PlaylistActionListener(mPlaylist!!)
         mPlayerGlue = VideoPlayerGlue(activity, mPlayerAdapter, mPlaylistActionListener!!)
@@ -303,17 +305,16 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             rowsAdapter.add(mPlayerGlue?.getControlsRow())
             val keys = data.keys
 
-            val cardPresenter = CardPresenter()
+            val cardPresenter = GridItemPresenter()
             for (key in keys){
                 Log.e("init", "initializeRelatedVideosRow: ${key}", )
                 val listRowAdapter = ArrayObjectAdapter(cardPresenter)
                 val value:List<String>? = data.get(key)
                 value?.let {
                     for (index in it.indices){
-                        val string = it[index]
-                        val bangumi = Bangumi(index.toString(),mVideo!!.source,mVideo!!.detailUrl,mVideo!!.name,mVideo!!.cover,string,0)
-                        mPlaylist?.add(bangumi)
-                        listRowAdapter.add(bangumi)
+                        val relateBangumi = RelateBangumi(index, it[index])
+                        listRowAdapter.add(relateBangumi)
+                        mPlaylist?.add(relateBangumi)
                     }
                     val header = HeaderItem(key)
                     val row = ListRow(header, listRowAdapter)
@@ -355,17 +356,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder,
             row: Row
         ) {
-            if (item is Bangumi) {
-                val video: Bangumi = item as Bangumi
-                Log.e("ItemViewClickedListener", "onItemClicked: ${adapter.size()}", )
-                Log.e("ItemViewClickedListener", "onItemClicked: ${adapter.get(0)}", )
-                Log.e("ItemViewClickedListener", "onItemClicked: ${item}", )
-                Log.e("ItemViewClickedListener", "onItemClicked: ${row}", )
-                val id = item.id.toIntOrNull()
-                if (id!=null){
-                    mPlayEpisode= id
-                    loadPlayUrl()
-                }
+             if (item is RelateBangumi){
+                mPlayEpisode= item.id
+                loadPlayUrl()
             }
         }
     }
@@ -417,4 +410,30 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         }
 
     }
+
+    private inner class GridItemPresenter : Presenter() {
+        private val GRID_ITEM_WIDTH = 200
+        private val GRID_ITEM_HEIGHT = 200
+        override fun onCreateViewHolder(parent: ViewGroup): Presenter.ViewHolder {
+            val view = TextView(parent.context)
+            view.layoutParams = ViewGroup.LayoutParams(
+                GRID_ITEM_WIDTH,
+                GRID_ITEM_HEIGHT
+            )
+            view.isFocusable = true
+            view.isFocusableInTouchMode = true
+            view.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.default_background))
+            view.setTextColor(Color.WHITE)
+            view.gravity = Gravity.CENTER
+            return Presenter.ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
+
+            (viewHolder.view as TextView).text = (item as RelateBangumi).label
+        }
+
+        override fun onUnbindViewHolder(viewHolder: Presenter.ViewHolder) {}
+    }
+
 }

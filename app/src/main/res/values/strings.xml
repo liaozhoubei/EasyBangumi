@@ -91,4 +91,13 @@
 
     <string name="search_results">Search results for \'%1$s\'</string>
     <string name="no_search_results">No search results found for \'%1$s\'</string>
+
+    <string name="pref_title_settings">App Settings</string>
+
+
+    <string name="pref_key_source">pref_source</string>
+    <string name="pref_title_source">数据源</string>
+    <string name="pref_summary_source">选择加载数据时的数据源</string>
+
+
 </resources>

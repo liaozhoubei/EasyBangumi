@@ -18,14 +18,15 @@ package com.heyanle.easybangumi.tv
 import android.os.Bundle
 import com.heyanle.easybangumi.R
 import android.content.Intent
+import android.util.Log
 import android.view.KeyEvent
-import com.heyanle.easybangumi.source.SourceParserFactory
 
 /*
  * SearchActivity for SearchFragment
+ * 在有搜索数据的情况下，移动到搜索数据最左边会跳到数据源上，暂未找到处理方法
  */
 class TvSearchActivity : LeanbackActivity() {
-    private var mFragment: SearchFragment? = null
+    private var mFragment: TvSearchFragment? = null
 
     /**
      * Called when the activity is first created.
@@ -34,7 +35,7 @@ class TvSearchActivity : LeanbackActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.search)
         mFragment = supportFragmentManager
-            .findFragmentById(R.id.search_fragment) as SearchFragment?
+            .findFragmentById(R.id.search_fragment) as TvSearchFragment?
     }
 
     override fun onSearchRequested(): Boolean {
@@ -49,8 +50,10 @@ class TvSearchActivity : LeanbackActivity() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         // If there are no results found, press the left key to reselect the microphone
         if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && !mFragment!!.hasResults()) {
+            Log.e("SearchActivity", "onKeyDown: mFragment.focusOnSearch()")
             mFragment!!.focusOnSearch()
         }
+
         return super.onKeyDown(keyCode, event)
     }
 }

@@ -176,13 +176,6 @@ public class TvSearchBar extends RelativeLayout {
 
         mRadioGroup = findViewById(R.id.rg_source);
 
-//        List<String> test = new ArrayList<>();
-//        test.add("123");
-//        test.add("456");
-//        test.add("78");
-//        test.add("97");
-//        setRadioGroup(test);
-
         mSearchTextEditor.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
@@ -286,10 +279,13 @@ public class TvSearchBar extends RelativeLayout {
         updateHint();
     }
 
-    public void setRadioGroup(List<String> keys){
+    public void setRadioGroup(List<String> keys, int defaultFocus){
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.get(i);
             RadioButton radioButton = new RadioButton(mContext);
+            if (i == defaultFocus){
+                radioButton.setChecked(true);
+            }
             radioButton.setText(key);
             radioButton.setId(i);
             mRadioGroup.addView(radioButton);

@@ -1,10 +1,12 @@
 package com.heyanle.easybangumi.source.yhdm
 
 import android.content.Context
+import android.util.Log
 import com.heyanle.easybangumi.EasyApplication
 import com.heyanle.easybangumi.R
 import com.heyanle.easybangumi.entity.Bangumi
 import com.heyanle.easybangumi.entity.BangumiDetail
+import com.heyanle.easybangumi.entity.Episode
 import com.heyanle.easybangumi.source.*
 import com.heyanle.easybangumi.source.bimibimi.BimibimiParser
 import com.heyanle.easybangumi.ui.detailplay.DetailPlayActivity
@@ -219,7 +221,7 @@ class YhdmParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser, ISe
         bangumi: Bangumi,
         lineIndex: Int,
         episodes: Int
-    ): ISourceParser.ParserResult<String> {
+    ): ISourceParser.ParserResult<Episode> {
         if(lineIndex < 0 || episodes < 0){
             return ISourceParser.ParserResult.Error(IndexOutOfBoundsException(), false)
         }
@@ -252,12 +254,16 @@ class YhdmParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser, ISe
             }
 
             val result = runCatching {
-                doc.select("div.area div.bofang div#playbox")[0].attr("data-vid").split("$")[0]
+                val name = doc.getElementsByClass("sel")
+                Log.e("Parser", "getPlayUrl: " + name)
+                Log.e("Parser", "getPlayUrl: " + name.text() )
+                val url = doc.select("div.area div.bofang div#playbox")[0].attr("data-vid").split("$")[0]
+                Episode(name.text(), url)
             }.getOrElse {
                 it.printStackTrace()
                 return@withContext ISourceParser.ParserResult.Error(it, true)
             }
-            if(result.isNotEmpty())
+            if(result.url.isNotEmpty())
                 return@withContext ISourceParser.ParserResult.Complete(result)
 
             return@withContext ISourceParser.ParserResult.Error(Exception("Unknown Error"), true)

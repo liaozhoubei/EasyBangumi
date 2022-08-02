@@ -38,7 +38,7 @@ class BrowseErrorFragment : ErrorSupportFragment() {
         super.onCreate(savedInstanceState)
         title = resources.getString(R.string.app_name)
         mSpinnerFragment = SpinnerFragment()
-        requireFragmentManager().beginTransaction().add(R.id.main_frame, mSpinnerFragment!!).commit()
+        requireFragmentManager().beginTransaction().add(R.id.main_browse_fragment, mSpinnerFragment!!).commit()
     }
 
     override fun onStart() {

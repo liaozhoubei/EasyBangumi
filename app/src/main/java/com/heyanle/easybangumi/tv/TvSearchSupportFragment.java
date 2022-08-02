@@ -373,8 +373,8 @@ public class TvSearchSupportFragment extends Fragment {
         }
     }
 
-    public void setSourceLabel(List<String> sourceText){
-        mSearchBar.setRadioGroup(sourceText);
+    public void setSourceLabel(List<String> sourceText, int defaultFocus){
+        mSearchBar.setRadioGroup(sourceText, defaultFocus);
     }
 
     @Override

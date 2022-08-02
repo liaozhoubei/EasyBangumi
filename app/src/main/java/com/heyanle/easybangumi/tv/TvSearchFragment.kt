@@ -40,11 +40,11 @@ import kotlinx.coroutines.withContext
 /*
  * This class demonstrates how to do in-app search
  */
-class SearchFragment : TvSearchSupportFragment(), TvSearchSupportFragment.SearchResultProvider {
+class TvSearchFragment : TvSearchSupportFragment(), TvSearchSupportFragment.SearchResultProvider {
     private val mHandler = Handler()
     private var mRowsAdapter: ArrayObjectAdapter? = null
     private var mQuery: String? = null
-    private val mResultsFound = false
+    private var mResultsFound = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mRowsAdapter = ArrayObjectAdapter(ListRowPresenter())
@@ -61,7 +61,7 @@ class SearchFragment : TvSearchSupportFragment(), TvSearchSupportFragment.Search
 
     override fun onResume() {
         super.onResume()
-        setSourceLabel(SourceParserFactory.homeLabel())
+        setSourceLabel(SourceParserFactory.homeLabel(), 0)
     }
 
     override fun onPause() {
@@ -105,10 +105,10 @@ class SearchFragment : TvSearchSupportFragment(), TvSearchSupportFragment.Search
                 val source = SourceParserFactory.parser(key)
                 if (source!= null){
                     if (source.getLabel() === label){
-                        val sourceKey = source.getKey();
+//                        val sourceKey = source.getKey();
                         val searchParser = SourceParserFactory.search(source.getKey())
                         if (searchParser!= null){
-                            searchData(searchParser)
+                            searchData(query, searchParser)
                         }
                     }
                 }
@@ -117,9 +117,9 @@ class SearchFragment : TvSearchSupportFragment(), TvSearchSupportFragment.Search
         }
     }
 
-    private fun searchData(searchParser: ISearchParser) {
+    private fun searchData(query: String, searchParser: ISearchParser) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val result = searchParser.search("废柴", 0)
+            val result = searchParser.search(query, 0)
 
             if (result is ISourceParser.ParserResult.Complete) {
                 val data = result.data
@@ -127,8 +127,10 @@ class SearchFragment : TvSearchSupportFragment(), TvSearchSupportFragment.Search
                 val bangumis = data.second
                 var titleRes: Int
                 if (bangumis.isEmpty()) {
+                    mResultsFound = false;
                     titleRes = R.string.no_search_results;
                 } else {
+                    mResultsFound = true;
                     titleRes = R.string.search_results;
                 }
                 val header = HeaderItem(getString(titleRes, mQuery));

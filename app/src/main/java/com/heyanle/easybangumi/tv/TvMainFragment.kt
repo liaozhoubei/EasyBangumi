@@ -1,6 +1,7 @@
 package com.heyanle.easybangumi.tv
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -11,11 +12,13 @@ import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.leanback.app.BackgroundManager
 import androidx.leanback.app.BrowseSupportFragment
 import androidx.leanback.widget.*
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -32,7 +35,7 @@ import java.util.*
 /**
  * Loads a grid of cards with movies to browse.
  */
-class MainFragment : BrowseSupportFragment() {
+class TvMainFragment : BrowseSupportFragment() {
 
     private val mHandler = Handler(Looper.myLooper()!!)
     private lateinit var mBackgroundManager: BackgroundManager
@@ -41,11 +44,12 @@ class MainFragment : BrowseSupportFragment() {
     private var mBackgroundTimer: Timer? = null
     private var mBackgroundUri: String? = null
     private var starIndex:Int = 0;
+    private lateinit var sharedPreferences:SharedPreferences
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate")
         super.onActivityCreated(savedInstanceState)
-
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
         prepareBackgroundManager()
 
         setupUIElements()
@@ -71,8 +75,8 @@ class MainFragment : BrowseSupportFragment() {
     }
 
     private fun setupUIElements() {
-        val labelList = SourceParserFactory.homeLabel()
-        title = labelList[1]
+//        val labelList = SourceParserFactory.homeLabel()
+
         // over title
         headersState = BrowseSupportFragment.HEADERS_ENABLED
         isHeadersTransitionOnBackEnabled = true
@@ -85,13 +89,22 @@ class MainFragment : BrowseSupportFragment() {
 
     override fun onResume() {
         super.onResume()
+
+        var key = sharedPreferences.getString(getString(R.string.pref_key_source), null)
+        if (key== null){
+            val edit = sharedPreferences.edit()
+            key = SourceParserFactory.homeKeys()[0]
+            edit.putString(getString(R.string.pref_key_source), key)
+        }
+        val label = SourceParserFactory.home(key)!!.getLabel()
+        title = label
         loadRows()
     }
 
     private fun loadRows() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val keyList = SourceParserFactory.homeKeys()
-            val result = SourceParserFactory.home("yhdm")?.home();
+            val key = sharedPreferences.getString(getString(R.string.pref_key_source), SourceParserFactory.homeKeys()[0])
+            val result = SourceParserFactory.home(key!!)?.home();
             if (result is ISourceParser.ParserResult.Complete) {
                 var index = 0;
                 val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
@@ -114,16 +127,11 @@ class MainFragment : BrowseSupportFragment() {
                 index++
                 for (key in keys) {
                     val bangumis: List<Bangumi>? = data.get(key)
-                    Log.e("MainActivity", "onCreate: key=${key}")
                     // 右侧影片信息
                     val listRowAdapter = ArrayObjectAdapter(cardPresenter)
                     bangumis?.let {
                         for (bangumi in it) {
                             listRowAdapter.add(bangumi)
-                            Log.e(
-                                "MainActivity",
-                                "onCreate: source=${bangumi} ",
-                            )
                         }
                     }
                     val header = HeaderItem(index.toLong(), key)
@@ -131,54 +139,35 @@ class MainFragment : BrowseSupportFragment() {
                     index++
                 }
                 withContext(Dispatchers.Main){
+                    // 最后的个人信息
+                    val gridHeader = HeaderItem(NUM_ROWS.toLong(), getString(R.string.setting))
+
+                    val mGridPresenter = GridItemPresenter()
+                    val gridRowAdapter = ArrayObjectAdapter(mGridPresenter)
+//                    gridRowAdapter.add(resources.getString(R.string.grid_view))
+//                    gridRowAdapter.add(getString(R.string.error_fragment))
+                    gridRowAdapter.add(resources.getString(R.string.setting))
+                    rowsAdapter.add(ListRow(gridHeader, gridRowAdapter))
+
                     adapter = rowsAdapter
                 }
 
             }else if (result is ISourceParser.ParserResult.Error){
                 result.throwable.printStackTrace()
                 Log.e(TAG, "loadRows: ${result.throwable.stackTraceToString()}" )
+                withContext(Dispatchers.Main){
+                    val errorFragment = BrowseErrorFragment()
+                    requireFragmentManager().beginTransaction().replace(R.id.main_browse_fragment, errorFragment)
+                        .addToBackStack(null).commit()
+                }
             }
-
         }
-
-//        val list = MovieList.list
-//
-//        val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
-//        val cardPresenter = CardPresenter()
-//
-//        for (i in 0 until NUM_ROWS) {
-//            if (i != 0) {
-//                // 随机排序
-//                Collections.shuffle(list)
-//            }
-//            // 右侧影片信息
-//            val listRowAdapter = ArrayObjectAdapter(cardPresenter)
-//            for (j in 0 until NUM_COLS) {
-//                listRowAdapter.add(list[j % 5])
-//            }
-//            // 左侧菜单
-//            val header = HeaderItem(i.toLong(), MovieList.MOVIE_CATEGORY[i])
-//            rowsAdapter.add(ListRow(header, listRowAdapter))
-//        }
-
-        // 最后的个人信息
-//        val gridHeader = HeaderItem(NUM_ROWS.toLong(), "PREFERENCES")
-//
-//        val mGridPresenter = GridItemPresenter()
-//        val gridRowAdapter = ArrayObjectAdapter(mGridPresenter)
-//        gridRowAdapter.add(resources.getString(R.string.grid_view))
-//        gridRowAdapter.add(getString(R.string.error_fragment))
-//        gridRowAdapter.add(resources.getString(R.string.personal_settings))
-//        rowsAdapter.add(ListRow(gridHeader, gridRowAdapter))
-//
-//        adapter = rowsAdapter
     }
 
     private fun setupEventListeners() {
         setOnSearchClickedListener {
 //            Toast.makeText(requireActivity(), "Implement your own in-app search", Toast.LENGTH_LONG)
 //                .show()
-
             val intent = Intent(activity, TvSearchActivity::class.java)
             startActivity(intent)
         }
@@ -197,26 +186,14 @@ class MainFragment : BrowseSupportFragment() {
 
             if (item is Bangumi) {
                 Log.d(TAG, "Item: " + item)
-//                val intent = Intent(activity!!, PlaybackActivity::class.java)
-//                intent.putExtra(PlaybackActivity.MOVIE, item)
-//
-//                val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-//                    activity!!,
-//                    (itemViewHolder.view as ImageCardView).mainImageView,
-//                    DetailsActivity.SHARED_ELEMENT_NAME
-//                )
-//                    .toBundle()
-//                startActivity(intent, bundle)
                 val intent = Intent(requireActivity(), PlaybackActivity::class.java)
                 intent.putExtra(PlaybackActivity.VIDEO, item)
                 startActivity(intent)
-            } else if (item is String) {
-//                if (item.contains(getString(R.string.error_fragment))) {
-//                    val intent = Intent(activity!!, BrowseErrorActivity::class.java)
-//                    startActivity(intent)
-//                } else {
-//                    Toast.makeText(activity!!, item, Toast.LENGTH_SHORT).show()
-//                }
+            } else if ((item as String).contains(getString(R.string.setting))) {
+                val intent = Intent(activity, TvSettingsActivity::class.java)
+                val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity())
+                    .toBundle()
+                startActivity(intent, bundle)
             }
         }
     }
@@ -227,10 +204,12 @@ class MainFragment : BrowseSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder, row: Row
         ) {
             // 更换背景图
-//            if (item is Movie) {
-//                mBackgroundUri = item.backgroundImageUrl
+            if (item is Bangumi){
+                // 图片像素太差。。。
+//                mBackgroundUri = item.cover
 //                startBackgroundTimer()
-//            }
+            }
+
         }
     }
 

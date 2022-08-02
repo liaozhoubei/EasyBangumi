@@ -487,11 +487,11 @@ class DetailPlayActivity : BaseActivity() {
         viewModel.viewModelScope.launch {
             playParser.getPlayUrl(bangumi, playLineIndex, playEpisode)
                 .complete {
-                    if(it.data == ""){
+                    if(it.data.url == ""){
                         errorVideo()
                     }else{
                         withContext(Dispatchers.Main){
-                            viewModel.playUrl[playLineIndex][playEpisode] = it.data
+                            viewModel.playUrl[playLineIndex][playEpisode] = it.data.url
                             play()
                         }
                     }

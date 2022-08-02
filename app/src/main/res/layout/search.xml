@@ -16,6 +16,6 @@
 
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/search_fragment"
-    android:name="com.heyanle.easybangumi.tv.SearchFragment"
+    android:name="com.heyanle.easybangumi.tv.TvSearchFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />

@@ -17,6 +17,7 @@
 package com.heyanle.easybangumi.tv;
 
 import com.heyanle.easybangumi.entity.Bangumi;
+import com.heyanle.easybangumi.entity.RelateBangumi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.List;
  */
 public class Playlist {
 
-    private List<Bangumi> playlist;
+    private List<RelateBangumi> playlist;
     private int currentPosition;
 
     public Playlist() {
@@ -46,7 +47,7 @@ public class Playlist {
      *
      * @param video to be added to the playlist.
      */
-    public void add(Bangumi video) {
+    public void add(RelateBangumi video) {
         playlist.add(video);
     }
 
@@ -74,7 +75,7 @@ public class Playlist {
      *
      * @return The next video in the playlist.
      */
-    public Bangumi next() {
+    public RelateBangumi next() {
         if ((currentPosition + 1) < size()) {
             currentPosition++;
             return playlist.get(currentPosition);
@@ -88,7 +89,7 @@ public class Playlist {
      *
      * @return The previous video in the playlist.
      */
-    public Bangumi previous() {
+    public RelateBangumi previous() {
         if (currentPosition - 1 >= 0) {
             currentPosition--;
             return playlist.get(currentPosition);
