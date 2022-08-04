@@ -33,7 +33,7 @@ class TvSearchActivity : LeanbackActivity() {
      */
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.search)
+        setContentView(R.layout.activity_tv_search)
         mFragment = supportFragmentManager
             .findFragmentById(R.id.search_fragment) as TvSearchFragment?
     }

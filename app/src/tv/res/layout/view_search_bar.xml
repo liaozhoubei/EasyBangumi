@@ -15,18 +15,7 @@
      limitations under the License.
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-<!--    <androidx.leanback.widget.SpeechOrbView-->
-<!--        android:id="@+id/lb_search_bar_speech_orb"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_centerVertical="true"-->
-<!--        android:layout_marginStart="@dimen/lb_search_bar_speech_orb_margin_start"-->
-<!--        android:focusable="true"-->
-<!--        android:focusableInTouchMode="true"-->
-<!--        android:visibility="gone"-->
-<!--        >-->
-<!--        <requestFocus/>-->
-<!--    </androidx.leanback.widget.SpeechOrbView>-->
+
 <!--600dp-->
     <RelativeLayout
         android:id="@+id/lb_search_bar_items"

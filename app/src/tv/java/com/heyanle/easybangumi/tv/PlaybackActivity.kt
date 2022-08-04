@@ -13,7 +13,7 @@ class PlaybackActivity : FragmentActivity() {
     private var mPlaybackVideoFragment: PlaybackVideoFragment? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_playback)
+        setContentView(R.layout.activity_tv_playback)
         val fragment: Fragment? =
             getSupportFragmentManager().findFragmentByTag(getString(R.string.playback_tag))
         if (fragment is PlaybackVideoFragment) {

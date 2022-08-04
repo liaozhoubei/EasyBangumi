@@ -22,13 +22,6 @@ android {
         flavorDimensions.add(AndroidConfig.defaultConfig.versionName)
     }
 
-    productFlavors{
-        create("phone") {}
-        // 添加构建变体，国内 tv 系统无法区分手机还是电视应用
-        create("tv") {
-            applicationIdSuffix = ".tv"
-        }
-    }
 
 
     buildTypes {
@@ -40,6 +33,16 @@ android {
 //            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),  "proguard-rules.pro")
         }
     }
+
+
+    productFlavors{
+        create("phone") {}
+        // 添加构建变体，国内 tv 系统无法区分手机还是电视应用
+        create("tv") {
+            applicationIdSuffix = ".tv"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

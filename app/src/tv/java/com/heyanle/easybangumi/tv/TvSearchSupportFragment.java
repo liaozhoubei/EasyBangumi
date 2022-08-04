@@ -3,11 +3,9 @@ package com.heyanle.easybangumi.tv;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.Manifest;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +28,6 @@ import androidx.leanback.widget.VerticalGridView;
 
 import com.heyanle.easybangumi.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TvSearchSupportFragment extends Fragment {
@@ -259,7 +256,7 @@ public class TvSearchSupportFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_my_search, container, false);
+        View root = inflater.inflate(R.layout.fragment_tv_search, container, false);
 
         FrameLayout searchFrame = (FrameLayout) root.findViewById(R.id.lb_search_frame);
         mSearchBar = (TvSearchBar) searchFrame.findViewById(R.id.lb_search_bar);

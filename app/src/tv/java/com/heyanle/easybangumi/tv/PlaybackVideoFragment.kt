@@ -86,17 +86,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         }
 
         mPlaylist = Playlist()
-//        mVideoLoaderCallbacks = VideoLoaderCallbacks(mPlaylist)
 
-        // Loads the playlist.
-//        val args = Bundle()
-//        args.putString(VideoContract.VideoEntry.COLUMN_CATEGORY, mVideo.category)
-//        loaderManager
-//            .initLoader(
-//                VideoLoaderCallbacks.QUEUE_VIDEOS_LOADER, args,
-//                mVideoLoaderCallbacks!!
-//            )
-//        mVideoCursorAdapter = setupRelatedVideosCursor()
         loadVideoData();
     }
 
