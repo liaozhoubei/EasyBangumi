@@ -3,6 +3,7 @@ package com.heyanle.easybangumi.tv
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.heyanle.easybangumi.R
@@ -14,6 +15,8 @@ class PlaybackActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tv_playback)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         val fragment: Fragment? =
             getSupportFragmentManager().findFragmentByTag(getString(R.string.playback_tag))
         if (fragment is PlaybackVideoFragment) {
@@ -23,6 +26,7 @@ class PlaybackActivity : FragmentActivity() {
 
     override protected fun onStop() {
         super.onStop()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         finish()
     }
 

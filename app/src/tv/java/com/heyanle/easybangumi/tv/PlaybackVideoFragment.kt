@@ -146,11 +146,6 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                     val key = list.get(index)
                     val ls = it.data.get(key)
                     Log.e("PlaybackVideoFragment", "onCreate:playMsg key ${key} ${ls}",)
-//                    ls?.let {
-//                        for(string in ls){
-//                            Log.e("PlaybackVideoFragment", "onCreate:playMsg value ${string}",)
-//                        }
-//                    }
                 }
                 mPlayUrl = Array(it.data.size){ po ->
                     val li = it.data[list[po]]?: emptyList()

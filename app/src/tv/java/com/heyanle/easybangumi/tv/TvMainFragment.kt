@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.leanback.app.BackgroundManager
@@ -105,25 +106,28 @@ class TvMainFragment : BrowseSupportFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             val key = sharedPreferences.getString(getString(R.string.pref_key_source), SourceParserFactory.homeKeys()[0])
             Log.e(TAG, "loadRows: ${key}", )
-            val result = SourceParserFactory.home(key!!)?.home();
+            var result = SourceParserFactory.home(key!!)?.home();
+            var index = 0;
+            starIndex = index
+
+            val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
+            val cardPresenter = CardPresenter()
+
+            val listStarRowAdapter = ArrayObjectAdapter(cardPresenter)
+            val detals = EasyDatabase.AppDB.bangumiDetailDao().findStarBangumiDetails()
+            for (detal in detals){
+                val bangumi = Bangumi(detal.id,detal.source,detal.detailUrl,detal.name,detal.cover,detal.intro,0)
+                listStarRowAdapter.add(bangumi)
+            }
+
+            val header = HeaderItem(index.toLong(), "我的追番")
+            rowsAdapter.add(ListRow(header, listStarRowAdapter))
+
+
             if (result is ISourceParser.ParserResult.Complete) {
-                var index = 0;
-                val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
-                val cardPresenter = CardPresenter()
 
                 val data: LinkedHashMap<String, List<Bangumi>> = result.data;
                 val keys = data.keys
-
-                val listStarRowAdapter = ArrayObjectAdapter(cardPresenter)
-                val detals = EasyDatabase.AppDB.bangumiDetailDao().findStarBangumiDetails()
-                for (detal in detals){
-                    val bangumi = Bangumi(detal.id,detal.source,detal.detailUrl,detal.name,detal.cover,detal.intro,0)
-                    listStarRowAdapter.add(bangumi)
-                }
-
-                starIndex = index
-                val header = HeaderItem(index.toLong(), "我的追番")
-                rowsAdapter.add(ListRow(header, listStarRowAdapter))
 
                 index++
                 for (key in keys) {
@@ -139,36 +143,37 @@ class TvMainFragment : BrowseSupportFragment() {
                     rowsAdapter.add(ListRow(header, listRowAdapter))
                     index++
                 }
-                withContext(Dispatchers.Main){
-                    // 最后的个人信息
-                    val gridHeader = HeaderItem(NUM_ROWS.toLong(), getString(R.string.setting))
-
-                    val mGridPresenter = GridItemPresenter()
-                    val gridRowAdapter = ArrayObjectAdapter(mGridPresenter)
-//                    gridRowAdapter.add(resources.getString(R.string.grid_view))
-//                    gridRowAdapter.add(getString(R.string.error_fragment))
-                    gridRowAdapter.add(resources.getString(R.string.setting))
-                    rowsAdapter.add(ListRow(gridHeader, gridRowAdapter))
-
-                    adapter = rowsAdapter
-                }
 
             }else if (result is ISourceParser.ParserResult.Error){
                 result.throwable.printStackTrace()
                 Log.e(TAG, "loadRows: ${result.throwable.stackTraceToString()}" )
+
                 withContext(Dispatchers.Main){
+                    Toast.makeText(requireActivity(), result.throwable.toString(), Toast.LENGTH_SHORT).show()
                     val errorFragment = BrowseErrorFragment()
+                    val bundle = Bundle()
+                    bundle.putString(BrowseErrorFragment.ERROR_MSG,result.throwable.toString())
+                    errorFragment.arguments = bundle
                     requireFragmentManager().beginTransaction().replace(R.id.main_browse_fragment, errorFragment)
                         .addToBackStack(null).commit()
                 }
             }
+            withContext(Dispatchers.Main){
+                // 最后的设置页面
+                val gridHeader = HeaderItem(NUM_ROWS.toLong(), getString(R.string.setting))
+                val mGridPresenter = GridItemPresenter()
+                val gridRowAdapter = ArrayObjectAdapter(mGridPresenter)
+                gridRowAdapter.add(resources.getString(R.string.setting))
+                rowsAdapter.add(ListRow(gridHeader, gridRowAdapter))
+
+                adapter = rowsAdapter
+            }
+
         }
     }
 
     private fun setupEventListeners() {
         setOnSearchClickedListener {
-//            Toast.makeText(requireActivity(), "Implement your own in-app search", Toast.LENGTH_LONG)
-//                .show()
             val intent = Intent(activity, TvSearchActivity::class.java)
             startActivity(intent)
         }

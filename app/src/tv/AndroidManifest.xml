@@ -46,6 +46,9 @@
 
         <activity
             android:name=".tv.PlaybackActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
             android:exported="false" />
         <activity
             android:name=".tv.BrowseErrorActivity"

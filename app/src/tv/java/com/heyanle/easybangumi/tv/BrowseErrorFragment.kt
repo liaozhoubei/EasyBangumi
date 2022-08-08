@@ -43,9 +43,10 @@ class BrowseErrorFragment : ErrorSupportFragment() {
 
     override fun onStart() {
         super.onStart()
+        val msg = arguments?.getString(ERROR_MSG) ?: resources.getString(R.string.error_fragment_message)
         mHandler.postDelayed({
             requireFragmentManager().beginTransaction().remove(mSpinnerFragment!!).commit()
-            setErrorContent()
+            setErrorContent(msg)
         }, TIMER_DELAY.toLong())
     }
 
@@ -55,9 +56,9 @@ class BrowseErrorFragment : ErrorSupportFragment() {
         requireFragmentManager().beginTransaction().remove(mSpinnerFragment!!).commit()
     }
 
-    private fun setErrorContent() {
+    private fun setErrorContent(errorMsg:String) {
         imageDrawable = resources.getDrawable(androidx.leanback.R.drawable.lb_ic_sad_cloud, null)
-        message = resources.getString(R.string.error_fragment_message)
+        message = errorMsg
         setDefaultBackground(TRANSLUCENT)
         buttonText = resources.getString(R.string.dismiss_error)
         buttonClickListener = View.OnClickListener {
@@ -86,5 +87,6 @@ class BrowseErrorFragment : ErrorSupportFragment() {
     companion object {
         private const val TRANSLUCENT = true
         private const val TIMER_DELAY = 1000
+        const val ERROR_MSG = "ErrorMsg"
     }
 }
