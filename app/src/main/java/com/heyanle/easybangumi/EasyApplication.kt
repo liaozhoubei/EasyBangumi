@@ -23,11 +23,9 @@ class EasyApplication : Application() {
         super.onCreate()
         INSTANCE = this
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler(this))
-        Okkv.Builder()
+        Okkv.Builder(MMKVStore(this))
             //.addInterceptorChain(LogcatInterceptorChain())
-            .store(MMKVStore(this))
             .build().init().default()
-
         DarkUtils.autoApplication()
         SourceParserFactory.init()
         EasyDatabase.AppDB

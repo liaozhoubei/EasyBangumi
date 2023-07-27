@@ -9,7 +9,7 @@ object Dependencies {
         const val jsoup = "1.14.3"
         const val okhttp3 = "5.0.0-alpha.2"
         const val glide = "4.12.0"
-        const val okkv2 = "1.1.0"
+        const val okkv2 = "1.3.5"
         const val android_core = "1.8.0"
         const val material = "1.6.1"
         const val kotlinx_coroutines = "1.6.0"
