@@ -2,6 +2,7 @@ package com.heyanle.easybangumi.tv
 
 
 import android.annotation.TargetApi
+import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -58,6 +59,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
     private var mVideo: Bangumi? = null
     private var mBangumiDetail: BangumiDetail? = null
+
+    // 播放视频的地址
+    private var mPlayerUrl: String = "";
     private var mPlaylist: Playlist? = null
 
     //    private var mVideoLoaderCallbacks: VideoLoaderCallbacks? = null
@@ -213,6 +217,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                             mPlayUrl[mPlayLineIndex][mPlayEpisode] = data.uri
                             mPlayerGlue?.setTitle(mVideo!!.name)
 //                            mPlayerGlue?.setSubtitle(it.data.episode)
+                            mPlayerUrl = data.uri
                             play(data.uri)
                         }
                     }
@@ -437,6 +442,27 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                     }
                 }
             }
+        }
+
+        override fun openOutPlayer() {
+            Log.e("openOutPlayer", "openOutPlayer: $mVideo")
+            if (mPlayerUrl.isNotBlank()) {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    val type = "video/*"
+                    val uri = Uri.parse(mPlayerUrl)
+                    intent.setDataAndType(uri, type)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        "无法使用外部播放器:${e.toString()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+
         }
 
         init {

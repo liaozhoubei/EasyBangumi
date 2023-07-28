@@ -23,15 +23,18 @@ class VideoPlayerGlue(
         fun onNext()
         /*收藏*/
         fun star()
+
+        fun openOutPlayer()
     }
 
     private val mRepeatAction: RepeatAction
-    private val mThumbsUpAction: ThumbsUpAction
-    private val mThumbsDownAction: ThumbsDownAction
+
     private val mSkipPreviousAction: SkipPreviousAction
     private val mSkipNextAction: SkipNextAction
     private val mFastForwardAction: FastForwardAction
     private val mRewindAction: RewindAction
+    private val mFavoriteAction:FavoriteAction
+    private val mOutPlayerAction:OutPlayerAction
     override fun onCreatePrimaryActions(adapter: ArrayObjectAdapter) {
         // Order matters, super.onCreatePrimaryActions() will create the play / pause action.
         // Will display as follows:
@@ -46,9 +49,10 @@ class VideoPlayerGlue(
 
     override fun onCreateSecondaryActions(adapter: ArrayObjectAdapter) {
         super.onCreateSecondaryActions(adapter)
-//        adapter.add(mThumbsDownAction)
-        adapter.add(mThumbsUpAction)
+
 //        adapter.add(mRepeatAction)
+        adapter.add(mFavoriteAction)
+        adapter.add(mOutPlayerAction)
     }
 
     override fun onActionClicked(action: Action) {
@@ -62,7 +66,9 @@ class VideoPlayerGlue(
 
     // Should dispatch actions that the super class does not supply callbacks for.
     private fun shouldDispatchAction(action: Action): Boolean {
-        return action === mRewindAction || action === mFastForwardAction || action === mThumbsDownAction || action === mThumbsUpAction || action === mRepeatAction
+//        return action === mRewindAction || action === mFastForwardAction || action === mThumbsDownAction || action === mThumbsUpAction || action === mRepeatAction
+        return action === mRewindAction || action === mFastForwardAction
+                || action === mFavoriteAction  || action === mRepeatAction || action === mOutPlayerAction
     }
 
     private fun dispatchAction(action: Action) {
@@ -72,17 +78,18 @@ class VideoPlayerGlue(
         } else if (action === mFastForwardAction) {
             fastForward()
         }
-        else if (action === mThumbsUpAction){
+        else if (action === mFavoriteAction){
             mActionListener.star()
 
-            val index = if (mThumbsUpAction.index < mThumbsUpAction.getActionCount() - 1) mThumbsUpAction.index + 1 else 0
-            mThumbsUpAction.index = index
-            Log.e("dispatchAction", "dispatchAction: ${mThumbsUpAction.index}")
-//            mThumbsUpAction.nextIndex()
+            val index = if (mFavoriteAction.index < mFavoriteAction.getActionCount() - 1) mFavoriteAction.index + 1 else 0
+            mFavoriteAction.index = index
+            Log.e("dispatchAction", "dispatchAction: ${mFavoriteAction.index}")
             notifyActionChanged(
-                mThumbsUpAction,
+                mFavoriteAction,
                 controlsRow.secondaryActionsAdapter as ArrayObjectAdapter
             )
+        }else if (action === mOutPlayerAction){
+            mActionListener.openOutPlayer()
         }
         else if (action is MultiAction) {
             val multiAction = action
@@ -98,12 +105,12 @@ class VideoPlayerGlue(
 
     public fun star(star:Boolean){
         if (star){// 0为收藏
-            mThumbsUpAction.index = 0
+            mFavoriteAction.index = 0
         }else{
-            mThumbsUpAction.index = 1
+            mFavoriteAction.index = 1
         }
         notifyActionChanged(
-            mThumbsUpAction,
+            mFavoriteAction,
             controlsRow.secondaryActionsAdapter as ArrayObjectAdapter
         )
     }
@@ -158,10 +165,10 @@ class VideoPlayerGlue(
         mSkipNextAction = SkipNextAction(context)
         mFastForwardAction = FastForwardAction(context)
         mRewindAction = RewindAction(context)
-        mThumbsUpAction = ThumbsUpAction(context)
-        mThumbsUpAction.index = ThumbsUpAction.INDEX_OUTLINE
-        mThumbsDownAction = ThumbsDownAction(context)
-        mThumbsDownAction.index = ThumbsDownAction.INDEX_OUTLINE
+
         mRepeatAction = RepeatAction(context)
+        mFavoriteAction = FavoriteAction(context)
+        mFavoriteAction.index = FavoriteAction.INDEX_OUTLINE
+        mOutPlayerAction= OutPlayerAction(context)
     }
 }
