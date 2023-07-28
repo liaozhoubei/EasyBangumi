@@ -17,7 +17,8 @@ android {
         targetSdk = Android.targetSdk
         versionCode = Android.versionCode
         versionName = Android.versionName
-
+        // Android.versionName在 buildSrc 中配置
+        flavorDimensions.add(Android.versionName)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -51,6 +52,15 @@ android {
             }
         }
     }
+
+    productFlavors{
+        create("phone") {}
+        // 添加构建变体，国内 tv 系统无法区分手机还是电视应用
+        create("tv") {
+            applicationIdSuffix = ".tv"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -70,6 +80,22 @@ android {
 
 
 dependencies {
+    implementation("androidx.media3:media3-ui-leanback:1.1.0")
+    val leanback_version = "1.2.0-alpha02"
+
+    implementation("androidx.leanback:leanback:$leanback_version")
+    implementation("androidx.leanback:leanback-preference:$leanback_version")
+    implementation( "com.google.android.exoplayer:exoplayer-ui:${Version.exoplayer}")
+    val media3_version = "1.1.0"
+
+    // For media playback using ExoPlayer
+    implementation("androidx.media3:media3-exoplayer:$media3_version")
+    // For building media playback UIs
+    implementation("androidx.media3:media3-ui:$media3_version")
+    // For building media playback UIs for Android TV using the Jetpack Leanback library
+    implementation("androidx.media3:media3-ui-leanback:$media3_version")
+    // For HLS playback support with ExoPlayer
+    implementation("androidx.media3:media3-exoplayer-hls:$media3_version")
     glide()
     okkv2()
     okhttp3()

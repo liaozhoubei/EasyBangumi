@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <ListPreference
+        android:key="@string/pref_key_source"
+        android:title="@string/pref_title_source"
+        android:summary="@string/pref_summary_source"
+        />
+
+</PreferenceScreen>

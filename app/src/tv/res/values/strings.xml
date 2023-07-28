@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">纯纯看番</string>
+    <string name="setting">设置</string>
+    <string name="source_error">番剧源解析错误</string>
+
+    <string name="playback_tag">PLAYBACK_TAG</string>
+    <string name="pref_key_source">pref_source</string>
+    <string name="pref_title_source">数据源</string>
+    <string name="pref_summary_source">选择加载数据时的数据源</string>
+
+
+    <string name="error_fragment_message">An error occurred</string>
+    <string name="dismiss_error">Dismiss</string>
+
+    <string name="search_results">Search results for \'%1$s\'</string>
+    <string name="no_search_results">No search results found for \'%1$s\'</string>
+
+    <string name="personal_settings">Personal Settings</string>
+</resources>

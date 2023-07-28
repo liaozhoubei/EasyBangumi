@@ -1,5 +1,7 @@
 package com.heyanle.bangumi_source_api.api.entity
 
+import java.io.Serializable
+
 
 /**
  * Created by HeYanLe on 2021/9/8 22:09.
@@ -27,7 +29,7 @@ data class Bangumi(
 
     // 最后访问时间 （历史记录）
     var visitTime: Long = 0L,
-) {
+) : Serializable {
     fun toSummary(): BangumiSummary {
         return BangumiSummary(id, source, detailUrl)
     }

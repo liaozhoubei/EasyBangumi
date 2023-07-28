@@ -2,6 +2,7 @@ package com.heyanle.easy_crasher
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import org.w3c.dom.Text
@@ -29,7 +30,6 @@ class CrashActivity : Activity() {
         btTitle.text = title
 
         val tvErrMsg = findViewById<TextView>(R.id.tv_msg)
-
 
         tvErrMsg.text = intent?.getStringExtra(KEY_ERROR_MSG)
     }

@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.heyanle.easybangumi.LocalNavController
@@ -53,7 +54,7 @@ import kotlinx.coroutines.launch
  * https://github.com/heyanLE
  */
 
-
+@Preview
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun AnimHome() {
@@ -62,7 +63,7 @@ fun AnimHome() {
         AnimHomePage(vm = vm)
     }
 }
-
+@Preview
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun AnimHomePage(

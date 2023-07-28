@@ -52,9 +52,7 @@ class BangumiApp : Application() {
         HttpsURLConnection.setDefaultHostnameVerifier(TrustAllHostnameVerifier())
 
         EasyDB.init(this)
-
         AnimSourceLibrary.newSource(InnerLoader, true)
-
         initAppCenter()
 
         kotlin.runCatching {
@@ -118,5 +116,13 @@ class BangumiApp : Application() {
 
 
     }
+
+//    fun getSourceKeys():List<String>{
+//        return SourceParserFactory.homeKeys()
+//    }
+//
+//    fun getSourceLabels():List<String>{
+//        return SourceParserFactory.homeLabel()
+//    }
 
 }
