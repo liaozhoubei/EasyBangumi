@@ -2,6 +2,7 @@ package com.heyanle.easybangumi.tv
 
 
 import android.annotation.TargetApi
+import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -53,12 +54,18 @@ class PlaybackVideoFragment : VideoSupportFragment() {
     private var mPlaylistActionListener: PlaylistActionListener? = null
 
     private var mVideo: Bangumi? = null
-    private var mBangumiDetail: BangumiDetail?= null
+    private var mBangumiDetail: BangumiDetail? = null
+
+    // 播放视频的地址
+    private var mPlayerUrl: String = "";
     private var mPlaylist: Playlist? = null
-//    private var mVideoLoaderCallbacks: VideoLoaderCallbacks? = null
+
+    //    private var mVideoLoaderCallbacks: VideoLoaderCallbacks? = null
     private var mVideoCursorAdapter: CursorObjectAdapter? = null
+
     // 观看路线
     private var mPlayLineIndex = 0
+
     // 观看集数
     private var mPlayEpisode = 0
     private var mPlayUrl: Array<Array<String>> = emptyArray()
@@ -68,19 +75,19 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
         // 播放
         mPlayParser = SourceParserFactory.play(mVideo!!.source).let {
-            if(it == null){
+            if (it == null) {
                 requireActivity().finish()
                 return
-            }else{
+            } else {
                 it
             }
         }
         // 获取细节
         mDetailParser = SourceParserFactory.detail(mVideo!!.source).let {
-            if(it == null){
+            if (it == null) {
                 requireActivity().finish()
                 return
-            }else{
+            } else {
                 it
             }
         }
@@ -90,39 +97,44 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         loadVideoData();
     }
 
-    fun loadVideoData(){
+    fun loadVideoData() {
         // 1. 先加载视频详情信息
         lifecycleScope.launch {
             mDetailParser.detail(mVideo!!).complete {
-                Log.e("PlaybackVideoFragment", "onCreate:detail ${it.data}", )
+                Log.e("PlaybackVideoFragment", "onCreate:detail ${it.data}")
                 val detail = it.data
 
-                EasyDatabase.AppDB.bangumiDetailDao().findBangumiDetailById(detail.id).forEach { b ->
-                    detail.lastProcessTime = b.lastProcessTime
-                    detail.lastLine = b.lastLine
-                    detail.lastEpisodes = b.lastEpisodes
-                    detail.star = b.star
-                    detail.lastVisiTime = System.currentTimeMillis()
-                    detail.cover = b.cover
-                    detail.name = b.name
-                    detail.intro = b.intro
-                    detail.description = b.description
-                }
+                EasyDatabase.AppDB.bangumiDetailDao().findBangumiDetailById(detail.id)
+                    .forEach { b ->
+                        detail.lastProcessTime = b.lastProcessTime
+                        detail.lastLine = b.lastLine
+                        detail.lastEpisodes = b.lastEpisodes
+                        detail.star = b.star
+                        detail.lastVisiTime = System.currentTimeMillis()
+                        detail.cover = b.cover
+                        detail.name = b.name
+                        detail.intro = b.intro
+                        detail.description = b.description
+                    }
                 mBangumiDetail = detail
                 mPlayLineIndex = detail.lastLine
                 mPlayEpisode = detail.lastEpisodes
-                if(detail.star){
+                if (detail.star) {
                     EasyDatabase.AppDB.bangumiDetailDao().update(detail)
                 }
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     mPlayerGlue?.star(mBangumiDetail!!.star)
                 }
                 loadPlayMsg()
 
             }.error {
-                if (it.isParserError){
-                     withContext(Dispatchers.Main) {
-                        Toast.makeText(EasyApplication.INSTANCE, R.string.source_error, Toast.LENGTH_SHORT).show()
+                if (it.isParserError) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            EasyApplication.INSTANCE,
+                            R.string.source_error,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
                 it.throwable.printStackTrace()
@@ -131,27 +143,24 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         }
 
 
-
-
-
     }
 
-    fun loadPlayMsg(){
+    fun loadPlayMsg() {
         // 2. 加载视频播放信息(多少集)
         lifecycleScope.launch {
             mPlayParser.getPlayMsg(mVideo!!).complete {
                 val list = it.data.keys.toList();
 //                val data:LinkedHashMap<String, List<String>> =it.data;
-                for (index in list.indices){
+                for (index in list.indices) {
                     val key = list.get(index)
                     val ls = it.data.get(key)
-                    Log.e("PlaybackVideoFragment", "onCreate:playMsg key ${key} ${ls}",)
+                    Log.e("PlaybackVideoFragment", "onCreate:playMsg key ${key} ${ls}")
                 }
-                mPlayUrl = Array(it.data.size){ po ->
-                    val li = it.data[list[po]]?: emptyList()
-                    Array(li.size){""}
+                mPlayUrl = Array(it.data.size) { po ->
+                    val li = it.data[list[po]] ?: emptyList()
+                    Array(li.size) { "" }
                 }
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     try {
                         val mRowsAdapter = initializeRelatedVideosRow(it.data)
                         adapter = mRowsAdapter
@@ -162,9 +171,13 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                 // 获取播放地址准备播放 getPlayUrl
                 loadPlayUrl()
             }.error {
-                if (it.isParserError){
+                if (it.isParserError) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(EasyApplication.INSTANCE, R.string.source_error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            EasyApplication.INSTANCE,
+                            R.string.source_error,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
                 it.throwable.printStackTrace()
@@ -173,30 +186,39 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         }
     }
 
-    fun loadPlayUrl(){
+    fun loadPlayUrl() {
         // 3.加载播放地址，开始播放
         lifecycleScope.launch {
             // 选集顺序有可能是倒序，主要看网站排序
             mPlayParser.getPlayUrl(mVideo!!, mPlayLineIndex, mPlayEpisode)
                 .complete {
-                    if(it.data.url == ""){
+                    if (it.data.url == "") {
 //                        errorVideo()
-                        withContext(Dispatchers.Main){
-                            Toast.makeText(EasyApplication.INSTANCE, R.string.source_error, Toast.LENGTH_SHORT).show()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                EasyApplication.INSTANCE,
+                                R.string.source_error,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                    }else{
-                        withContext(Dispatchers.Main){
+                    } else {
+                        withContext(Dispatchers.Main) {
                             mPlayUrl[mPlayLineIndex][mPlayEpisode] = it.data.url
                             mPlayerGlue?.setTitle(mVideo!!.name)
                             mPlayerGlue?.setSubtitle(it.data.episode)
+                            mPlayerUrl = it.data.url
                             play(it.data.url)
                         }
                     }
-                    Log.e("PlaybackVideoFragment", "onCreate: playUrl ${it}", )
+                    Log.e("PlaybackVideoFragment", "onCreate: playUrl ${it}")
                 }.error {
-                    if(it.isParserError){
-                        withContext(Dispatchers.Main){
-                            Toast.makeText(EasyApplication.INSTANCE, R.string.source_error, Toast.LENGTH_SHORT).show()
+                    if (it.isParserError) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                EasyApplication.INSTANCE,
+                                R.string.source_error,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                     }
@@ -259,6 +281,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             mPlaylistActionListener = null
         }
     }
+
     // 开始播放
     private fun play(url: String) {
         prepareMediaForPlaying(Uri.parse(url))
@@ -271,15 +294,16 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 //            .setMediaId(mediaId)
             .setTag("VideoPlayerGlue")
             .build()
-        val mediaSource: MediaSource = DefaultMediaSourceFactory(requireContext()).createMediaSource(mediaItem)
+        val mediaSource: MediaSource =
+            DefaultMediaSourceFactory(requireContext()).createMediaSource(mediaItem)
 
 //        mPlayer!!.prepare(mediaSource)
         mPlayer!!.setMediaSource(mediaSource)
     }
 
-    private fun initializeRelatedVideosRow(data:LinkedHashMap<String, List<String>>): ArrayObjectAdapter {
+    private fun initializeRelatedVideosRow(data: LinkedHashMap<String, List<String>>): ArrayObjectAdapter {
         val presenterSelector = ClassPresenterSelector()
-        var rowsAdapter: ArrayObjectAdapter =ArrayObjectAdapter()
+        var rowsAdapter: ArrayObjectAdapter = ArrayObjectAdapter()
         try {
 
             presenterSelector.addClassPresenter(
@@ -291,12 +315,12 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             val keys = data.keys
 
             val cardPresenter = GridItemPresenter()
-            for (key in keys){
-                Log.e("init", "initializeRelatedVideosRow: ${key}", )
+            for (key in keys) {
+                Log.e("init", "initializeRelatedVideosRow: ${key}")
                 val listRowAdapter = ArrayObjectAdapter(cardPresenter)
-                val value:List<String>? = data.get(key)
+                val value: List<String>? = data.get(key)
                 value?.let {
-                    for (index in it.indices){
+                    for (index in it.indices) {
                         val relateBangumi = RelateBangumi(index, it[index])
                         listRowAdapter.add(relateBangumi)
                         mPlaylist?.add(relateBangumi)
@@ -307,7 +331,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                 }
             }
         } catch (e: Exception) {
-            Log.e("PlaybackVideoFragment", "initializeRelatedVideosRow: ",e )
+            Log.e("PlaybackVideoFragment", "initializeRelatedVideosRow: ", e)
         }
 
 
@@ -341,8 +365,8 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder,
             row: Row
         ) {
-             if (item is RelateBangumi){
-                mPlayEpisode= item.id
+            if (item is RelateBangumi) {
+                mPlayEpisode = item.id
                 loadPlayUrl()
             }
         }
@@ -353,7 +377,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         VideoPlayerGlue.OnActionClickedListener {
         private val mPlaylist: Playlist
         override fun onPrevious() {
-            if (mPlayEpisode-1>= 0){
+            if (mPlayEpisode - 1 >= 0) {
                 mPlayEpisode -= 1
                 loadPlayUrl()
             }
@@ -361,9 +385,12 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         }
 
         override fun onNext() {
-            Log.e("PlaylistActionListener", "onNext: ${mPlaylist.size()}  mPlayEpisode=${mPlayEpisode}", )
-            if (mPlayEpisode+1 < mPlaylist.size()){
-                mPlayEpisode+=1
+            Log.e(
+                "PlaylistActionListener",
+                "onNext: ${mPlaylist.size()}  mPlayEpisode=${mPlayEpisode}",
+            )
+            if (mPlayEpisode + 1 < mPlaylist.size()) {
+                mPlayEpisode += 1
                 loadPlayUrl()
             }
 //            Toast.makeText(EasyApplication.INSTANCE, "下一集", Toast.LENGTH_SHORT).show()
@@ -372,22 +399,45 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         override fun star() {
             mBangumiDetail?.let {
                 lifecycleScope.launch {
-                    if (it.star){
+                    if (it.star) {
                         it.star = false
                         EasyDatabase.AppDB.bangumiDetailDao().delete(it)
-                        withContext(Dispatchers.Main){
-                            Toast.makeText(EasyApplication.INSTANCE, "取消追番", Toast.LENGTH_SHORT).show()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(EasyApplication.INSTANCE, "取消追番", Toast.LENGTH_SHORT)
+                                .show()
                         }
-                    }else{
+                    } else {
                         it.star = true
                         EasyDatabase.AppDB.bangumiDetailDao().insert(it)
                         EasyDatabase.AppDB.bangumiDetailDao().update(it)
-                        withContext(Dispatchers.Main){
-                            Toast.makeText(EasyApplication.INSTANCE, "已追番", Toast.LENGTH_SHORT).show()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(EasyApplication.INSTANCE, "已追番", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }
                 }
             }
+        }
+
+        override fun openOutPlayer() {
+            Log.e("openOutPlayer", "openOutPlayer: $mVideo")
+            if (mPlayerUrl.isNotBlank()) {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    val type = "video/*"
+                    val uri = Uri.parse(mPlayerUrl)
+                    intent.setDataAndType(uri, type)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        "无法使用外部播放器:${e.toString()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+
         }
 
         init {
