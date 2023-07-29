@@ -189,6 +189,10 @@ const val exoplayer_rtmp = "com.google.android.exoplayer:extension-rtmp:${Versio
 fun DependencyHandler.exoplayerRtmp() {
     add(implementation, exoplayer_rtmp)
 }
+const val exoplayer_leanback = "com.google.android.exoplayer:extension-leanback:${Version.exoplayer}"
+fun DependencyHandler.exoplayerLeanback() {
+    add(implementation, exoplayer_leanback)
+}
 
 const val easy_player = "com.github.heyanLE.EasyPlayer:eplayer-core:${Version.easy_player}"
 fun DependencyHandler.easyPlayer() {

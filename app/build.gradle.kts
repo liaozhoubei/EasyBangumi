@@ -86,16 +86,16 @@ dependencies {
     implementation("androidx.leanback:leanback:$leanback_version")
     implementation("androidx.leanback:leanback-preference:$leanback_version")
 //    implementation( "com.google.android.exoplayer:exoplayer-ui:${Version.exoplayer}")
-    val media3_version = "1.1.0"
-    implementation("androidx.media3:media3-ui-leanback:1.1.0")
-    // For media playback using ExoPlayer
-    implementation("androidx.media3:media3-exoplayer:$media3_version")
-    // For building media playback UIs
-    implementation("androidx.media3:media3-ui:$media3_version")
-    // For building media playback UIs for Android TV using the Jetpack Leanback library
-    implementation("androidx.media3:media3-ui-leanback:$media3_version")
-    // For HLS playback support with ExoPlayer
-    implementation("androidx.media3:media3-exoplayer-hls:$media3_version")
+//    val media3_version = "1.1.0"
+//    implementation("androidx.media3:media3-ui-leanback:$media3_version")
+//    // For media playback using ExoPlayer
+//    implementation("androidx.media3:media3-exoplayer:$media3_version")
+//    // For building media playback UIs
+//    implementation("androidx.media3:media3-ui:$media3_version")
+//    // For building media playback UIs for Android TV using the Jetpack Leanback library
+//    implementation("androidx.media3:media3-ui-leanback:$media3_version")
+//    // For HLS playback support with ExoPlayer
+//    implementation("androidx.media3:media3-exoplayer-hls:$media3_version")
     glide()
     okkv2()
     okhttp3()
@@ -110,6 +110,7 @@ dependencies {
     coil()
     coilGif()
     exoplayer()
+    exoplayerLeanback()
     exoplayerHls()
     exoplayerRtmp()
     media()

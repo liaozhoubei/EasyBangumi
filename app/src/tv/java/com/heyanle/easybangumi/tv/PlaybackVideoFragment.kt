@@ -17,10 +17,11 @@ import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
 import androidx.leanback.widget.*
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
-import androidx.media3.ui.leanback.LeanbackPlayerAdapter
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
+
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.util.Util
 import com.heyanle.bangumi_source_api.api.IDetailParser
@@ -163,7 +164,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                 for (index in list.indices) {
                     val key = list.get(index)
                     val ls = it.data.get(key)
-                    Log.e("PlaybackVideoFragment", "onCreate:playMsg key ${key} ${ls}")
+                    Log.e("PlaybackVideoFragment", "loadPlayMsg:playMsg key ${key} ${ls}")
                 }
                 mPlayUrl = Array(it.data.size) { po ->
                     val li = it.data[list[po]] ?: emptyList()
@@ -221,7 +222,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                             play(data.uri)
                         }
                     }
-                    Log.e("PlaybackVideoFragment", "onCreate: playUrl ${it}")
+                    Log.e("PlaybackVideoFragment", "loadPlayUrl: playUrl ${it}")
                 }.error {
                     if (it.isParserError) {
                         withContext(Dispatchers.Main) {
@@ -296,6 +297,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
     // 开始播放
     private fun play(url: String) {
         Log.e("PlayVideo", "play: $url", )
+//        val ura = "http://v16m-default.akamaized.net/40cd327469af133bcd29c1358e3a23fe/64c593f3/video/tos/alisg/tos-alisg-ve-0051c001-sg/osozp7CchLDTErfwyIZAaNJtZoAmAiBYBIAJwD/?mime_type=video_mp4"
         prepareMediaForPlaying(Uri.parse(url))
         mPlayerGlue?.play()
     }
