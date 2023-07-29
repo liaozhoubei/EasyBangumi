@@ -180,6 +180,11 @@ fun DependencyHandler.exoplayer() {
     add(implementation, exoplayer)
 }
 
+const val exoplayer_hls = "com.google.android.exoplayer:exoplayer-hls:${Version.exoplayer}"
+fun DependencyHandler.exoplayerHls() {
+    add(implementation, exoplayer_hls)
+}
+
 const val exoplayer_rtmp = "com.google.android.exoplayer:extension-rtmp:${Version.exoplayer}"
 fun DependencyHandler.exoplayerRtmp() {
     add(implementation, exoplayer_rtmp)

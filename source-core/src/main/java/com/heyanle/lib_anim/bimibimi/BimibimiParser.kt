@@ -1,5 +1,6 @@
 package com.heyanle.lib_anim.bimibimi
 
+import android.util.Log
 import com.google.gson.JsonParser
 import com.heyanle.bangumi_source_api.api.*
 import com.heyanle.bangumi_source_api.api.IPlayerParser.PlayerInfo.Companion.TYPE_HLS
@@ -50,8 +51,10 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
     }
 
     private fun defaultGET(url: String): String {
+//        val req =
+//            GET(PROXY_URL + url, Headers.headersOf("User-Agent", networkHelper.defaultLinuxUA))
         val req =
-            GET(PROXY_URL + url, Headers.headersOf("User-Agent", networkHelper.defaultLinuxUA))
+            GET(url, Headers.headersOf("User-Agent", networkHelper.defaultLinuxUA))
         return networkHelper.client.newCall(req).execute().body?.string() ?: ""
     }
 
@@ -145,7 +148,8 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
                         name = it.child(1).child(0).text(),
                         detailUrl = detailUrl,
                         intro = it.child(1).child(1).text(),
-                        cover = PROXY_URL + url(it.child(0).child(0).attr("src")),
+//                        cover = PROXY_URL + url(it.child(0).child(0).attr("src")),
+                        cover = url(it.child(0).child(0).attr("src")),
                         visitTime = System.currentTimeMillis(),
                         source = getKey(),
                     )
@@ -180,7 +184,8 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
                 val name = tit.child(0).text()
                 val intro = tit.child(1).text()
                 val cover =
-                    PROXY_URL + url(doc.select("div.poster_placeholder div.v_pic img")[0].attr("src"))
+                      url(doc.select("div.poster_placeholder div.v_pic img")[0].attr("src"))
+//                    PROXY_URL + url(doc.select("div.poster_placeholder div.v_pic img")[0].attr("src"))
                 val description = doc.getElementsByClass("vod-jianjie")[0].text()
                 return@withContext ISourceParser.ParserResult.Complete(
                     BangumiDetail(
@@ -331,7 +336,8 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
             }
             val d = runCatching {
                 Jsoup.parse(
-                    networkHelper.client.newCall(GET(PROXY_URL + url(videoHtmlUrl)))
+                    networkHelper.client.newCall(GET( url(videoHtmlUrl)))
+//                    networkHelper.client.newCall(GET(PROXY_URL + url(videoHtmlUrl)))
                         .execute().body?.string() ?: ""
                 )
             }.getOrElse {
@@ -341,10 +347,13 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
             runCatching {
                 var src = d.select("video#video source")[0].attr("src")
                 if (src.startsWith("./")) {
-                    src = src.replace("./", "$PROXY_URL$ROOT_URL/static/danmu/")
+                    src = src.replace("./", "$ROOT_URL/static/danmu/")
+//                    src = src.replace("./", "$PROXY_URL$ROOT_URL/static/danmu/")
                 } else if (!src.startsWith("http://") && !src.startsWith("https://")) {
-                    src = "${"$PROXY_URL$ROOT_URL/static/danmu/"}${src}"
+                    src = "${"$ROOT_URL/static/danmu/"}${src}"
+//                    src = "${"$PROXY_URL$ROOT_URL/static/danmu/"}${src}"
                 }
+                Log.e("Bimibimi", "getPlayUrl: $src", )
                 return@withContext ISourceParser.ParserResult.Complete(
                     IPlayerParser.PlayerInfo(
                         type = TYPE_HLS,

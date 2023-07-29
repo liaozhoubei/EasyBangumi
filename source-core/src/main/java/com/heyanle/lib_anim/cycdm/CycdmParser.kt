@@ -309,9 +309,7 @@ class CycdmParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser, IS
         }
         return withContext(Dispatchers.IO) {
             val doc = runCatching {
-                Jsoup.parse(
-                    networkHelper.client.newCall(GET(url(url))).execute().body?.string() ?: ""
-                )
+                Jsoup.parse(networkHelper.client.newCall(GET(url(url))).execute().body?.string() ?: "")
             }.getOrElse {
                 it.printStackTrace()
                 return@withContext ISourceParser.ParserResult.Error(it, false)
@@ -324,7 +322,8 @@ class CycdmParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser, IS
                 var result = Base64Utils.decode(playSecret)
                 result = URLDecoder.decode(result, "utf-8")
 
-                if (result.startsWith("cycdm")) {
+//                if (result.startsWith("cycdm")) {
+                if (result.startsWith("Mzyun")) {
                     val requestForUrl = networkHelper.client.newCall(
                         POST(
                             "https://player.cycdm01.top/api_config.php",

@@ -80,14 +80,14 @@ android {
 
 
 dependencies {
-    implementation("androidx.media3:media3-ui-leanback:1.1.0")
+
     val leanback_version = "1.2.0-alpha02"
 
     implementation("androidx.leanback:leanback:$leanback_version")
     implementation("androidx.leanback:leanback-preference:$leanback_version")
-    implementation( "com.google.android.exoplayer:exoplayer-ui:${Version.exoplayer}")
+//    implementation( "com.google.android.exoplayer:exoplayer-ui:${Version.exoplayer}")
     val media3_version = "1.1.0"
-
+    implementation("androidx.media3:media3-ui-leanback:1.1.0")
     // For media playback using ExoPlayer
     implementation("androidx.media3:media3-exoplayer:$media3_version")
     // For building media playback UIs
@@ -104,13 +104,13 @@ dependencies {
     paging()
     pagingCompose()
     junit()
-    easyPlayer()
     compose()
     accompanist()
     navigationCompose()
     coil()
     coilGif()
     exoplayer()
+    exoplayerHls()
     exoplayerRtmp()
     media()
     easyPlayer()

@@ -295,6 +295,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
     // 开始播放
     private fun play(url: String) {
+        Log.e("PlayVideo", "play: $url", )
         prepareMediaForPlaying(Uri.parse(url))
         mPlayerGlue?.play()
     }

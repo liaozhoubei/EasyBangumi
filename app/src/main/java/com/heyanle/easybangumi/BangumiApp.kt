@@ -117,12 +117,5 @@ class BangumiApp : Application() {
 
     }
 
-//    fun getSourceKeys():List<String>{
-//        return SourceParserFactory.homeKeys()
-//    }
-//
-//    fun getSourceLabels():List<String>{
-//        return SourceParserFactory.homeLabel()
-//    }
 
 }

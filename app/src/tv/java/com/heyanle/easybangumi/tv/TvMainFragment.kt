@@ -98,8 +98,9 @@ class TvMainFragment : BrowseSupportFragment() {
 
     override fun onResume() {
         super.onResume()
-        val parser = AnimSourceFactory.parsers()
+
         lifecycleScope.launch(Dispatchers.IO) {
+            val parser = AnimSourceFactory.parsers()
             parser.collectLatest() { animSources ->
                 val parsers = animSources.homeParsers()
 
@@ -113,20 +114,20 @@ class TvMainFragment : BrowseSupportFragment() {
                     }
                     val parser = AnimSourceFactory.home(key)
                     val label = parser!!.getLabel()
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         title = label
                     }
 
-                    loadRows()
+                    loadRows(key)
                 }
             }
         }
 
     }
 
-    private fun loadRows() {
+    private fun loadRows(key:String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val parser = AnimSourceFactory.home("yhdm")
+            val parser = AnimSourceFactory.home(key)
 //            val key = sharedPreferences.getString(getString(R.string.pref_key_source), AnimSources.homeKeys()[0])
 //            Log.e(TAG, "loadRows: ${key}", )
             var result = parser?.home();

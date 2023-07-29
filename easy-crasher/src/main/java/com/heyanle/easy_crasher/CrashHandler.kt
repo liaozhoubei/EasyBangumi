@@ -52,7 +52,7 @@ class CrashHandler(
      * 这个是最关键的函数，当程序中有未被捕获的异常，系统将会自动调用#uncaughtException方法
      * thread为出现未捕获异常的线程，ex为未捕获的异常，有了这个ex，我们就可以得到异常信息。
      */
-    override fun uncaughtException(thread: Thread?, ex: Throwable) {
+    override fun uncaughtException(thread: Thread, ex: Throwable) {
         try {
             //导出异常信息到SD卡中
             dumpExceptionToSDCard(ex)
@@ -103,7 +103,6 @@ class CrashHandler(
 
             printWriter.close()
 
-            val eee = stringWriter.toString();
             val intent = Intent(context, CrashActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

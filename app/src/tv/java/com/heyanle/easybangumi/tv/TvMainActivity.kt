@@ -13,12 +13,8 @@ class TvMainActivity : LeanbackActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        lifecycleScope.launch(Dispatchers.IO){
-//            SourceParserFactory.init()
-//        }
 
         setContentView(R.layout.activity_tv_main)
-
 
     }
 }
