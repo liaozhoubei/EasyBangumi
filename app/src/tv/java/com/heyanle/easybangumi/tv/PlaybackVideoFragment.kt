@@ -54,11 +54,12 @@ class PlaybackVideoFragment : VideoSupportFragment() {
     private var mPlayer: ExoPlayer? = null
     private var mTrackSelector: TrackSelector? = null
     private var mPlaylistActionListener: PlaylistActionListener? = null
-    private var mExoPlayerListener:ExoPlayerListener? = null
+    private var mExoPlayerListener: ExoPlayerListener? = null
 
     private var mVideo: Bangumi? = null
     private var mBangumiDetail: BangumiDetail? = null
-    var mCurrentBangumiStar:BangumiStar? = null
+    var mCurrentBangumiStar: BangumiStar? = null
+
     // 播放视频的地址
     private var mPlayerUrl: String = "";
     private var mPlaylist: Playlist? = null
@@ -115,7 +116,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                     detail.detailUrl
                 )
                 bangumiStar?.let {
-                    mDBPlayEpisode= bangumiStar.playId
+                    mDBPlayEpisode = bangumiStar.playId
                     detail.star = true
                 }
                 mPlayerGlue?.setTitle(mVideo!!.name)
@@ -127,8 +128,8 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                     mCurrentBangumiStar = BangumiStar(
                         bangumiId = detail.id, name = detail.name, cover = detail.cover,
                         source = detail.source, detailUrl = detail.detailUrl,
-                        playId = bangumiStar?.playId ?:0,
-                        createTime = bangumiStar?.createTime?:0
+                        playId = bangumiStar?.playId ?: 0,
+                        createTime = bangumiStar?.createTime ?: 0
                     )
 
                     mPlayEpisode = mCurrentBangumiStar!!.playId
@@ -136,9 +137,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                 withContext(Dispatchers.Main) {
                     mPlayerGlue?.star(mBangumiDetail!!.star)
                 }
-                if (bangumiStar != null){
+                if (bangumiStar != null) {
                     loadPlayMsg(true)
-                }else{
+                } else {
                     loadPlayMsg(false)
                 }
 
@@ -160,9 +161,10 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
 
     }
+
     // 当前路线和剧集数量
-    var mCurrentPlayData:LinkedHashMap<String, List<String>>? = null
-    fun loadPlayMsg(star:Boolean) {
+    var mCurrentPlayData: LinkedHashMap<String, List<String>>? = null
+    fun loadPlayMsg(star: Boolean) {
         // 2. 加载视频播放信息(多少集)
         lifecycleScope.launch {
             val summary = BangumiSummary(mVideo!!.id, mVideo!!.source, mVideo!!.detailUrl)
@@ -173,7 +175,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                     val key = list.get(index)
                     val ls = it.data.get(key)
                 }
-                mCurrentPlayData= it.data
+                mCurrentPlayData = it.data
 
                 withContext(Dispatchers.Main) {
                     try {
@@ -183,14 +185,14 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                         Log.e("PlaybackVideoFragment", "loadPlayMsg: ", e)
                     }
                 }
-                if (list.isNotEmpty()  ) {
+                if (list.isNotEmpty()) {
                     // 当前播放路线
                     val key = list.get(0)
                     // 当前播放路线的剧集
                     val value: List<String>? = it.data[key]
-                    if (star){
+                    if (star) {
                         if (value != null) {
-                            val position = mCurrentBangumiStar?.playId ?:( value.size - 1)
+                            val position = mCurrentBangumiStar?.playId ?: (value.size - 1)
                             // 设置为之前看过的那一集
                             mPlayEpisode = position
                         }
@@ -215,6 +217,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
         }
     }
+
     fun loadPlayUrl() {
         // 3.加载播放地址，开始播放
         lifecycleScope.launch(Dispatchers.IO) {
@@ -233,19 +236,17 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                             ).show()
                         }
                     } else {
-                        mCurrentBangumiStar?.let {
-                            mCurrentBangumiStar?.playId = mPlayEpisode
-                            mCurrentPlayData?.let {
-                                val list = it.keys.toList();
-                                val key = list.get(mPlayLineIndex)
-                                val value: List<String>? = it[key]
-                                if (value!= null){
-                                    val position = mCurrentBangumiStar?.playId ?:( value.size - 1)
-                                    mPlayerGlue?.subtitle = value[position]
-                                }
-                            }
+                        var subtitle = ""
+                        var value: List<String>? = null
 
+                        mCurrentPlayData?.let {
+                            val list = it.keys.toList();
+                            val key = list.get(mPlayLineIndex)
+                            value = it[key]
+                            // 获取当前播放视频的副标题
+                            subtitle = value?.get(mPlayEpisode) ?: ""
                         }
+                        mPlayerGlue?.subtitle = subtitle
 
                         withContext(Dispatchers.Main) {
                             mPlayerUrl = data.uri
@@ -313,12 +314,11 @@ class PlaybackVideoFragment : VideoSupportFragment() {
     }
 
 
-
     private fun releasePlayer() {
         if (mPlayer != null) {
             mCurrentBangumiStar?.let {
                 val position = mPlayer!!.getCurrentPosition()
-                Thread(){
+                Thread() {
                     EasyDB.database.bangumiStar.update(it.bangumiId, mPlayEpisode, position)
                 }.start()
 
@@ -343,7 +343,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         mCurrentBangumiStar?.let {
             if (it.playId == mDBPlayEpisode)
             // 如果看过这一集就跳至上次观看位置
-            mPlayer?.seekTo(it.createTime)
+                mPlayer?.seekTo(it.createTime)
         }
 
     }
@@ -441,7 +441,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         }
     }
 
-    inner class ExoPlayerListener: Player.Listener {
+    inner class ExoPlayerListener : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
             super.onEvents(player, events)
 
@@ -449,7 +449,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             super.onPlaybackStateChanged(playbackState)
-            if (Player.STATE_ENDED == playbackState){
+            if (Player.STATE_ENDED == playbackState) {
                 mPlaylistActionListener?.onNext()
             }
         }
@@ -457,7 +457,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         override fun onPlayerError(error: PlaybackException) {
             super.onPlayerError(error)
             Toast.makeText(activity, "播放错误：${error.toString()}", Toast.LENGTH_SHORT).show()
-            Log.e("PlaybackVideoFragment", "onPlayerError: 播放错误", error )
+            Log.e("PlaybackVideoFragment", "onPlayerError: 播放错误", error)
         }
 
     }
