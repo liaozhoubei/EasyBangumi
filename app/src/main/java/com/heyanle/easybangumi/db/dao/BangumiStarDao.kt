@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.google.android.exoplayer2.analytics.PlayerId
 import com.heyanle.easybangumi.db.entity.BangumiStar
 
 /**
@@ -21,8 +22,12 @@ interface BangumiStarDao {
     @Update
     fun modify(bangumiStar: BangumiStar)
 
+
     @Delete
     fun delete(bangumiStar: BangumiStar)
+
+    @Query("UPDATE BangumiStar SET playId=(:userplayerId), createTime=(:playTime) WHERE bangumiId=(:id)")
+    fun update(id: String,userplayerId: Int, playTime:Long)
 
     @Query("SELECT * FROM BangumiStar ORDER BY createTime DESC")
     fun getAll(): PagingSource<Int, BangumiStar>

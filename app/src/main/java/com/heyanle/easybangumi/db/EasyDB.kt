@@ -1,6 +1,7 @@
 package com.heyanle.easybangumi.db
 
 import android.content.Context
+import android.util.Log
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
@@ -13,6 +14,7 @@ import com.heyanle.easybangumi.db.dao.SearchHistoryDao
 import com.heyanle.easybangumi.db.entity.BangumiHistory
 import com.heyanle.easybangumi.db.entity.BangumiStar
 import com.heyanle.easybangumi.db.entity.SearchHistory
+import java.util.concurrent.Executors
 
 /**
  * Created by HeYanLe on 2023/1/17 0:26.
@@ -49,15 +51,23 @@ object EasyDB {
             database.execSQL("ALTER TABLE BangumiStar ADD COLUMN `bangumiId` TEXT NOT NULL DEFAULT ''")
         }
     }
-
+//    dbBuilder.setQueryCallback(RoomDatabase.QueryCallback { sqlQuery, bindArgs ->
+//        println("SQL Query: $sqlQuery SQL Args: $bindArgs")
+//    }, Executors.newSingleThreadExecutor())
 
     fun init(context: Context) {
         database = Room.databaseBuilder(
             context,
-            AppDatabase::class.java, "easy_bangumi"
-        ).fallbackToDestructiveMigration()
+            AppDatabase::class.java, "easy_bangumi")
+            .setQueryCallback(RoomDatabase.QueryCallback { sqlQuery, bindArgs ->
+                Log.e("EasyDB", "SQL Query: $sqlQuery SQL Args: $bindArgs" )
+                }, Executors.newSingleThreadExecutor())
+            .fallbackToDestructiveMigration()
             .apply {
                 addMigrations(MIGRATION_6_7)
-            }.build()
+            }
+            .build()
+
+
     }
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "95fb4bfbcc8a4d0682afbda635dd0347",
+    "identityHash": "5f7b3c15e7fc6f500ebae5affd995879",
     "entities": [
       {
         "tableName": "SearchHistory",
@@ -38,12 +38,18 @@
       },
       {
         "tableName": "BangumiStar",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `cover` TEXT NOT NULL, `source` TEXT NOT NULL, `bangumiId` TEXT NOT NULL, `detailUrl` TEXT NOT NULL, `createTime` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bangumiId` TEXT NOT NULL, `name` TEXT NOT NULL, `cover` TEXT NOT NULL, `source` TEXT NOT NULL, `detailUrl` TEXT NOT NULL, `playId` INTEGER NOT NULL, `createTime` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bangumiId",
+            "columnName": "bangumiId",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -65,15 +71,15 @@
             "notNull": true
           },
           {
-            "fieldPath": "bangumiId",
-            "columnName": "bangumiId",
+            "fieldPath": "detailUrl",
+            "columnName": "detailUrl",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "detailUrl",
-            "columnName": "detailUrl",
-            "affinity": "TEXT",
+            "fieldPath": "playId",
+            "columnName": "playId",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -188,7 +194,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '95fb4bfbcc8a4d0682afbda635dd0347')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5f7b3c15e7fc6f500ebae5affd995879')"
     ]
   }
 }

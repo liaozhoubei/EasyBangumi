@@ -283,8 +283,9 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
         }
         return withContext(Dispatchers.IO) {
             val doc = runCatching {
-
-                Jsoup.parse(defaultGET(url))
+                Log.e("bimibimi", "getPlayUrlxxx:$url", )
+                val html = defaultGET(url)
+                Jsoup.parse(html)
             }.getOrElse {
                 it.printStackTrace()
                 return@withContext ISourceParser.ParserResult.Error(it, false)

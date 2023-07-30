@@ -18,6 +18,7 @@ data class BangumiStar(
     val cover: String,
     val source: String,
     val detailUrl: String,
+    var playId:Int = 0,
     val createTime: Long,
 ) {
 

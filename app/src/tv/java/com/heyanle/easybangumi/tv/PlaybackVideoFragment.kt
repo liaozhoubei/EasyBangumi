@@ -19,9 +19,10 @@ import androidx.leanback.widget.*
 import androidx.lifecycle.lifecycleScope
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.util.Util
 import com.heyanle.bangumi_source_api.api.IDetailParser
@@ -30,19 +31,15 @@ import com.heyanle.bangumi_source_api.api.entity.Bangumi
 import com.heyanle.bangumi_source_api.api.entity.BangumiDetail
 import com.heyanle.bangumi_source_api.api.entity.BangumiSummary
 import com.heyanle.easybangumi.BangumiApp
-
 import com.heyanle.easybangumi.R
 import com.heyanle.easybangumi.RelateBangumi
 import com.heyanle.easybangumi.db.EasyDB
 import com.heyanle.easybangumi.db.entity.BangumiStar
 import com.heyanle.easybangumi.source.AnimSourceFactory
-import com.heyanle.easybangumi.source.AnimSources
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
-import kotlin.collections.LinkedHashMap
 
 
 /** Handles video playback with media controls. */
@@ -57,23 +54,25 @@ class PlaybackVideoFragment : VideoSupportFragment() {
     private var mPlayer: ExoPlayer? = null
     private var mTrackSelector: TrackSelector? = null
     private var mPlaylistActionListener: PlaylistActionListener? = null
+    private var mExoPlayerListener:ExoPlayerListener? = null
 
     private var mVideo: Bangumi? = null
     private var mBangumiDetail: BangumiDetail? = null
-
+    var mCurrentBangumiStar:BangumiStar? = null
     // 播放视频的地址
     private var mPlayerUrl: String = "";
     private var mPlaylist: Playlist? = null
 
     //    private var mVideoLoaderCallbacks: VideoLoaderCallbacks? = null
-    private var mVideoCursorAdapter: CursorObjectAdapter? = null
+//    private var mVideoCursorAdapter: CursorObjectAdapter? = null
 
     // 观看路线
     private var mPlayLineIndex = 0
 
     // 观看集数
     private var mPlayEpisode = 0
-    private var mPlayUrl: Array<Array<String>> = emptyArray()
+    private var mDBPlayEpisode = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mVideo = requireActivity().intent.getSerializableExtra(PlaybackActivity.VIDEO) as Bangumi
@@ -98,7 +97,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         }
 
         mPlaylist = Playlist()
-
+        if (Util.SDK_INT > 23) {
+            initializePlayer()
+        }
         loadVideoData();
     }
 
@@ -114,26 +115,32 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                     detail.detailUrl
                 )
                 bangumiStar?.let {
-
+                    mDBPlayEpisode= bangumiStar.playId
                     detail.star = true
                 }
-
+                mPlayerGlue?.setTitle(mVideo!!.name)
                 mBangumiDetail = detail
                 mPlayLineIndex = detail.lastLine
-                mPlayEpisode = detail.lastEpisodes
+
+
                 if (detail.star) {
-                    val star = BangumiStar(
+                    mCurrentBangumiStar = BangumiStar(
                         bangumiId = detail.id, name = detail.name, cover = detail.cover,
                         source = detail.source, detailUrl = detail.detailUrl,
-                        createTime = detail.createTime
+                        playId = bangumiStar?.playId ?:0,
+                        createTime = bangumiStar?.createTime?:0
                     )
-                    EasyDB.database.bangumiStar.modify(star)
-//                    EasyDatabase.AppDB.bangumiDetailDao().update(detail)
+
+                    mPlayEpisode = mCurrentBangumiStar!!.playId
                 }
                 withContext(Dispatchers.Main) {
                     mPlayerGlue?.star(mBangumiDetail!!.star)
                 }
-                loadPlayMsg()
+                if (bangumiStar != null){
+                    loadPlayMsg(true)
+                }else{
+                    loadPlayMsg(false)
+                }
 
 
             }.error {
@@ -153,8 +160,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
 
     }
-
-    fun loadPlayMsg() {
+    // 当前路线和剧集数量
+    var mCurrentPlayData:LinkedHashMap<String, List<String>>? = null
+    fun loadPlayMsg(star:Boolean) {
         // 2. 加载视频播放信息(多少集)
         lifecycleScope.launch {
             val summary = BangumiSummary(mVideo!!.id, mVideo!!.source, mVideo!!.detailUrl)
@@ -164,12 +172,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                 for (index in list.indices) {
                     val key = list.get(index)
                     val ls = it.data.get(key)
-                    Log.e("PlaybackVideoFragment", "loadPlayMsg:playMsg key ${key} ${ls}")
                 }
-                mPlayUrl = Array(it.data.size) { po ->
-                    val li = it.data[list[po]] ?: emptyList()
-                    Array(li.size) { "" }
-                }
+                mCurrentPlayData= it.data
+
                 withContext(Dispatchers.Main) {
                     try {
                         val mRowsAdapter = initializeRelatedVideosRow(it.data)
@@ -178,6 +183,21 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                         Log.e("PlaybackVideoFragment", "loadPlayMsg: ", e)
                     }
                 }
+                if (list.isNotEmpty()  ) {
+                    // 当前播放路线
+                    val key = list.get(0)
+                    // 当前播放路线的剧集
+                    val value: List<String>? = it.data[key]
+                    if (star){
+                        if (value != null) {
+                            val position = mCurrentBangumiStar?.playId ?:( value.size - 1)
+                            // 设置为之前看过的那一集
+                            mPlayEpisode = position
+                        }
+                    }
+
+                }
+
                 // 获取播放地址准备播放 getPlayUrl
                 loadPlayUrl()
             }.error {
@@ -195,10 +215,9 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
         }
     }
-
     fun loadPlayUrl() {
         // 3.加载播放地址，开始播放
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val summary = BangumiSummary(mVideo!!.id, mVideo!!.source, mVideo!!.detailUrl)
             // 选集顺序有可能是倒序，主要看网站排序
             mPlayParser.getPlayUrl(summary, mPlayLineIndex, mPlayEpisode)
@@ -214,15 +233,26 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                             ).show()
                         }
                     } else {
+                        mCurrentBangumiStar?.let {
+                            mCurrentBangumiStar?.playId = mPlayEpisode
+                            mCurrentPlayData?.let {
+                                val list = it.keys.toList();
+                                val key = list.get(mPlayLineIndex)
+                                val value: List<String>? = it[key]
+                                if (value!= null){
+                                    val position = mCurrentBangumiStar?.playId ?:( value.size - 1)
+                                    mPlayerGlue?.subtitle = value[position]
+                                }
+                            }
+
+                        }
+
                         withContext(Dispatchers.Main) {
-                            mPlayUrl[mPlayLineIndex][mPlayEpisode] = data.uri
-                            mPlayerGlue?.setTitle(mVideo!!.name)
-//                            mPlayerGlue?.setSubtitle(it.data.episode)
                             mPlayerUrl = data.uri
                             play(data.uri)
                         }
                     }
-                    Log.e("PlaybackVideoFragment", "loadPlayUrl: playUrl ${it}")
+                    Log.i("PlaybackVideoFragment", "loadPlayUrl: playUrl ${it}")
                 }.error {
                     if (it.isParserError) {
                         withContext(Dispatchers.Main) {
@@ -241,9 +271,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
     override fun onStart() {
         super.onStart()
-        if (Util.SDK_INT > 23) {
-            initializePlayer()
-        }
+
     }
 
     override fun onResume() {
@@ -274,36 +302,54 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
     private fun initializePlayer() {
 
-//        mPlayer = SimpleExoPlayer.Builder(requireContext()).build()
         mPlayer = ExoPlayer.Builder(requireContext()).build()
         mPlayerAdapter = LeanbackPlayerAdapter(requireActivity(), mPlayer!!, UPDATE_DELAY)
         mPlaylistActionListener = PlaylistActionListener(mPlaylist!!)
         mPlayerGlue = VideoPlayerGlue(activity, mPlayerAdapter, mPlaylistActionListener!!)
         mPlayerGlue?.setHost(VideoSupportFragmentGlueHost(this))
         mPlayerGlue?.playWhenPrepared()
+        mExoPlayerListener = ExoPlayerListener()
+        mPlayer?.addListener(mExoPlayerListener!!)
     }
+
+
 
     private fun releasePlayer() {
         if (mPlayer != null) {
+            mCurrentBangumiStar?.let {
+                val position = mPlayer!!.getCurrentPosition()
+                Thread(){
+                    EasyDB.database.bangumiStar.update(it.bangumiId, mPlayEpisode, position)
+                }.start()
+
+            }
+
+            mPlayer?.removeListener(mExoPlayerListener!!)
             mPlayer!!.release()
             mPlayer = null
             mTrackSelector = null
             mPlayerGlue = null
             mPlayerAdapter = null
             mPlaylistActionListener = null
+            mExoPlayerListener = null
         }
     }
 
     // 开始播放
     private fun play(url: String) {
-        Log.e("PlayVideo", "play: $url", )
 //        val ura = "http://v16m-default.akamaized.net/40cd327469af133bcd29c1358e3a23fe/64c593f3/video/tos/alisg/tos-alisg-ve-0051c001-sg/osozp7CchLDTErfwyIZAaNJtZoAmAiBYBIAJwD/?mime_type=video_mp4"
         prepareMediaForPlaying(Uri.parse(url))
         mPlayerGlue?.play()
+        mCurrentBangumiStar?.let {
+            if (it.playId == mDBPlayEpisode)
+            // 如果看过这一集就跳至上次观看位置
+            mPlayer?.seekTo(it.createTime)
+        }
+
     }
 
     private fun prepareMediaForPlaying(mediaSourceUri: Uri) {
-        Log.e("PlaybackVideoFragment", "prepareMediaForPlaying: $mediaSourceUri")
+        Log.i("PlaybackVideoFragment", "prepareMediaForPlaying: $mediaSourceUri")
         val mediaItem: MediaItem = MediaItem.Builder()
             .setUri(mediaSourceUri)
 //            .setMediaId(mediaId)
@@ -329,16 +375,18 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             presenterSelector.addClassPresenter(ListRow::class.java, ListRowPresenter())
             rowsAdapter = ArrayObjectAdapter(presenterSelector)
             rowsAdapter.add(mPlayerGlue?.getControlsRow())
-            val keys = data.keys
-
+            val keys: List<String> = data.keys.toList()
             val cardPresenter = GridItemPresenter()
-            for (key in keys) {
-                Log.e("init", "initializeRelatedVideosRow: ${key}")
+            for (lindIndex in keys.indices) {
+                // 获取当前路线
+                val key = keys.get(lindIndex)
+                Log.i("init", "initializeRelatedVideosRow: ${key}")
                 val listRowAdapter = ArrayObjectAdapter(cardPresenter)
+                // 当前路线集数
                 val value: List<String>? = data.get(key)
                 value?.let {
                     for (index in it.indices) {
-                        val relateBangumi = RelateBangumi(index, it[index])
+                        val relateBangumi = RelateBangumi(key, lindIndex, index, it[index])
                         listRowAdapter.add(relateBangumi)
                         mPlaylist?.add(relateBangumi)
                     }
@@ -348,6 +396,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                 }
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             Log.e("PlaybackVideoFragment", "initializeRelatedVideosRow: ", e)
         }
 
@@ -383,10 +432,34 @@ class PlaybackVideoFragment : VideoSupportFragment() {
             row: Row
         ) {
             if (item is RelateBangumi) {
+                Log.i("PlaybackVideoFragment", "onItemClicked: item:$item")
+                mPlayLineIndex = item.lineIndex
+                mPlayerGlue?.subtitle = item.label
                 mPlayEpisode = item.id
                 loadPlayUrl()
             }
         }
+    }
+
+    inner class ExoPlayerListener: Player.Listener {
+        override fun onEvents(player: Player, events: Player.Events) {
+            super.onEvents(player, events)
+
+        }
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            super.onPlaybackStateChanged(playbackState)
+            if (Player.STATE_ENDED == playbackState){
+                mPlaylistActionListener?.onNext()
+            }
+        }
+
+        override fun onPlayerError(error: PlaybackException) {
+            super.onPlayerError(error)
+            Toast.makeText(activity, "播放错误：${error.toString()}", Toast.LENGTH_SHORT).show()
+            Log.e("PlaybackVideoFragment", "onPlayerError: 播放错误", error )
+        }
+
     }
 
 
@@ -422,12 +495,14 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                         cover = it.cover,
                         source = it.source,
                         detailUrl = it.detailUrl,
+                        playId = mPlayEpisode,
                         createTime = it.createTime
                     )
                     if (it.star) {
                         it.star = false
                         // BangumiStar 中有自增长的id ,因此只能先查询在删除
-                        val deleteStar = EasyDB.database.bangumiStarDao().getBySourceDetailUrl(it.id, it.source, it.detailUrl)
+                        val deleteStar = EasyDB.database.bangumiStarDao()
+                            .getBySourceDetailUrl(it.id, it.source, it.detailUrl)
                         deleteStar?.let {
                             EasyDB.database.bangumiStarDao().delete(deleteStar)
                             withContext(Dispatchers.Main) {
