@@ -76,9 +76,17 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
                     val uls = element.getElementsByClass("tab-cont")
                     val list = arrayListOf<Bangumi>()
                     val ul = uls[0]
+                    Log.i("Bimi", "home load ul.children.size: ${ul.children().size}", )
                     ul.children().forEach { ele ->
                         val detailUrl = url(ele.child(0).attr("href"))
-                        val imgUrl = url(ele.getElementsByTag("img")[0].attr("src"))
+                        val imgTag = ele.getElementsByTag("img")
+                        var imgUrl:String
+                        if(imgTag.size > 0){
+                            imgUrl = url(imgTag[0].attr("src"))
+                        }else{
+                            imgUrl = ""
+                            Log.e("Bimi", "load imgTag error: $imgTag", )
+                        }
                         val title = ele.child(1).child(0).text()
                         val intro = ele.child(1).child(1).text()
                         val bangumi = Bangumi(
@@ -183,8 +191,13 @@ class BimibimiParser : ISourceParser, IHomeParser, IDetailParser, IPlayerParser,
                 val tit = doc.select("div.txt_intro_con div.tit")[0]
                 val name = tit.child(0).text()
                 val intro = tit.child(1).text()
-                val cover =
-                      url(doc.select("div.poster_placeholder div.v_pic img")[0].attr("src"))
+                val img = doc.select("div.poster_placeholder div.v_pic img")
+                var cover:String = ""
+                if (img.size > 0){
+                    cover = url(img[0].attr("src"))
+                }else{
+                    Log.e("Bimi", "detail: no cover: $cover", )
+                }
 //                    PROXY_URL + url(doc.select("div.poster_placeholder div.v_pic img")[0].attr("src"))
                 val description = doc.getElementsByClass("vod-jianjie")[0].text()
                 return@withContext ISourceParser.ParserResult.Complete(

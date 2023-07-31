@@ -81,6 +81,7 @@ android {
 
 dependencies {
 
+
     val leanback_version = "1.2.0-alpha02"
 
     implementation("androidx.leanback:leanback:$leanback_version")
@@ -128,4 +129,5 @@ dependencies {
     implementation(project(":source-api"))
     implementation(project(":easy-dlna"))
     implementation(project(":easy-i18n"))
+
 }

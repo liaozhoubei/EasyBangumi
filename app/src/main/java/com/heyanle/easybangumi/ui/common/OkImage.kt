@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +48,8 @@ fun OkImage(
                     )
                 }
             }
-            .error(ColorDrawable(MaterialTheme.colorScheme.error.toArgb()))
+//            .error(ColorDrawable(MaterialTheme.colorScheme.error.toArgb()))
+            .error(ColorDrawable(Color.Gray.toArgb()))
             .build(),
         contentDescription = contentDescription,
         contentScale = contentScale,

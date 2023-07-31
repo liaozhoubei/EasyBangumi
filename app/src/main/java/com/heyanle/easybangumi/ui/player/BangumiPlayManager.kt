@@ -2,6 +2,7 @@ package com.heyanle.easybangumi.ui.player
 
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -153,20 +154,28 @@ object BangumiPlayManager {
                         BangumiApp.INSTANCE,
                         defaultDataSourceFactory
                     )
-                    val media = when (state.type) {
-                        C.CONTENT_TYPE_DASH -> DashMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(MediaItem.fromUri(state.uri))
+//                    val media = when (state.type) {
+//                        C.CONTENT_TYPE_DASH -> DashMediaSource.Factory(dataSourceFactory)
+//                            .createMediaSource(MediaItem.fromUri(state.uri))
+//
+//                        C.CONTENT_TYPE_HLS -> HlsMediaSource.Factory(dataSourceFactory)
+//                            .createMediaSource(
+//                                MediaItem.fromUri(state.uri)
+//                            )
+//
+//                        else -> ProgressiveMediaSource.Factory(dataSourceFactory)
+//                            .createMediaSource(
+//                                MediaItem.fromUri(state.uri)
+//                            )
+//                    }
 
-                        C.CONTENT_TYPE_HLS -> HlsMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(
-                                MediaItem.fromUri(state.uri)
-                            )
+                    val mediaItem: MediaItem = MediaItem.Builder()
+                        .setUri(state.uri)
+                        .setTag("VideoPlayerGlue")
+                        .build()
+                    // 有些视频无法判断是hls还是普通视频，因此直接用默认方法代替
+                    val media = DefaultMediaSourceFactory(BangumiApp.INSTANCE).createMediaSource(mediaItem)
 
-                        else -> ProgressiveMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(
-                                MediaItem.fromUri(state.uri)
-                            )
-                    }
                     val lastEnter = lastEnterData
                     if (lastEnter == null || lastEnter.lineIndex != state.lineIndex || lastEnter.episode != state.episode) {
                         PlayerController.setMediaSource(media, 0)
