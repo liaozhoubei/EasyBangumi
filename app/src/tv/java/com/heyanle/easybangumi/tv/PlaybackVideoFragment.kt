@@ -72,7 +72,6 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
     // 观看集数
     private var mPlayEpisode = 0
-    private var mDBPlayEpisode = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,7 +115,6 @@ class PlaybackVideoFragment : VideoSupportFragment() {
                     detail.detailUrl
                 )
                 bangumiStar?.let {
-                    mDBPlayEpisode = bangumiStar.playId
                     detail.star = true
                 }
                 mPlayerGlue?.setTitle(mVideo!!.name)
@@ -341,9 +339,10 @@ class PlaybackVideoFragment : VideoSupportFragment() {
         prepareMediaForPlaying(Uri.parse(url))
         mPlayerGlue?.play()
         mCurrentBangumiStar?.let {
-            if (it.playId == mDBPlayEpisode)
-            // 如果看过这一集就跳至上次观看位置
+            if (it.playId == mPlayEpisode)
+                // 如果看过这一集就跳至上次观看位置
                 mPlayer?.seekTo(it.createTime)
+
         }
 
     }
