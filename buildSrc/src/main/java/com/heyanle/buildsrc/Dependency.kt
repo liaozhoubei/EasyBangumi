@@ -43,7 +43,7 @@ object Version {
 
     const val coil = "2.2.2"
 
-    const val media3 = "1.0.0-beta03"
+    const val media3 = "1.0.0"
 
     const val media = "1.6.0"
 

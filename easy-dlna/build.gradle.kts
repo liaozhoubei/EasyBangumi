@@ -1,7 +1,5 @@
 import com.heyanle.buildsrc.cling
-import com.heyanle.buildsrc.jetty
 import com.heyanle.buildsrc.junit
-import com.heyanle.buildsrc.servlet
 
 plugins {
     id("com.android.library")
@@ -14,7 +12,7 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 33
+//        targetSdk = 33
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -36,8 +34,16 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    packagingOptions {
-        exclude("META-INF/beans.xml")
+//    packagingOptions {
+//        resources {
+//            excludes += setOf("META-INF/beans.xml")
+//        }
+//    }
+
+    packaging{
+        resources {
+            excludes += "/META-INF/beans.xml"
+        }
     }
 }
 

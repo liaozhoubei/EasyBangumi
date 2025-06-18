@@ -37,9 +37,15 @@ android {
         )
     }
 
-    packagingOptions {
-        resources.excludes.add("META-INF/beans.xml")
+    packaging{
+        resources {
+            excludes += "/META-INF/beans.xml"
+        }
     }
+
+//    packagingOptions {
+//        resources.excludes.add("META-INF/beans.xml")
+//    }
 
     buildTypes {
         release {
@@ -69,11 +75,12 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
         viewBinding = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
 
 }
@@ -82,7 +89,7 @@ android {
 dependencies {
 
 
-    val leanback_version = "1.2.0-alpha02"
+    val leanback_version = "1.2.0"
 
     implementation("androidx.leanback:leanback:$leanback_version")
     implementation("androidx.leanback:leanback-preference:$leanback_version")

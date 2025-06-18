@@ -7,7 +7,7 @@ package com.heyanle.buildsrc
 object Android {
     val minSdk = 21
     val targetSdk = 33
-    val compileSdk = 33
+    val compileSdk = 35
 
     val versionCode = 52
     val versionName = "3.1.4"
